@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Nine_colored_deer_Sharp"
         mc:Ignorable="d"
+         FontSize="16"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
          ResizeMode="CanResize"
@@ -103,11 +104,59 @@
                     </Image>
                 </Border>
 
+
+                <Button Name="txt_Model" Click="txt_Model_Click" ToolTip="点击切换设备">
+                    <Button.Template>
+                        <ControlTemplate>
+                            <TextBlock Margin="0 10 0 0" Text="{Binding Content,RelativeSource={RelativeSource Mode=TemplatedParent}}" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
                 <StackPanel Margin="0 10 0 0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <Button Margin="0 0 5 0" Click="Button_Click_1">刷新</Button>
-                    <Button Margin="5 0 0 0" Click="Button_Click">截屏</Button>
+                    <Button Margin="0 0 5 0" Click="btn_shutdown_Click" Focusable="False" Name="btn_shutdown">关机</Button>
+                    <Button Margin="0 0 5 0" Click="btn_reboot_Click" Focusable="False" Name="btn_reboot">重启</Button>
+                    <Button Margin="0 0 5 0" Click="btn_refresh_Click" Focusable="False" Name="btn_refresh">刷新</Button>
+                    <Button Margin="5 0 0 0" Click="btn_screenshot_Click" Focusable="False" Name="btn_screenshot">截屏</Button>
                 </StackPanel>
             </StackPanel>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <UniformGrid Rows="1" Columns="2" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500" Height="200">
+
+                    <Button Name="btn_filemanage" Height="200" Width="250" Click="btn_filemanage_Click" >
+                        <Button.Template>
+                            <ControlTemplate>
+                                <Border Background="#ffca00" Margin="5">
+                                    <TextBlock Text="文件管理" Foreground="White" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button Name="btn_appmanage"  Height="200" Width="250"  Click="btn_appmanage_Click" >
+                        <Button.Template>
+                            <ControlTemplate>
+                                <Border Background="#29a6ff" Margin="5">
+                                    <TextBlock Text="应用管理" Foreground="White" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                </UniformGrid>
+                <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Center" Name="txt_memory" Margin="0 50 0 0"></TextBlock>
+            </StackPanel>
+        </Grid>
+
+        <Grid Name="grid_info" Grid.RowSpan="2">
+
+        </Grid>
+
+        <Grid Grid.Row="1" Name="grid_loading" Visibility="Collapsed">
+            <Grid.Background>
+                <SolidColorBrush Color="Black" Opacity="0.3"></SolidColorBrush>
+            </Grid.Background>
+            <hc:LoadingCircle Name="hc_loading" IsRunning="False"></hc:LoadingCircle>
         </Grid>
 
     </Grid>

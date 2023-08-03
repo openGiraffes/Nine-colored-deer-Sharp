@@ -1,0 +1,44 @@
+﻿<Window x:Class="Nine_colored_deer_Sharp.PhoneSelecterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Nine_colored_deer_Sharp"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterOwner"
+        Title="选择adb设备" Height="320" Width="350">
+    <Grid Margin="20">
+        <StackPanel>
+
+            <ScrollViewer Height="200" VerticalAlignment="Center">
+                <ItemsControl Height="200" Name="items" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+
+                            </StackPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid VerticalAlignment="Center" Margin="10" HorizontalAlignment="Left">
+                                <RadioButton Click="RadioButton_Click" Content="{Binding Model}" Tag="{Binding Serial}" GroupName="selectphone" >
+                                </RadioButton>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Button Name="btn_ok" Click="btn_ok_Click">
+                    确认
+                </Button>
+                <Button Name="btn_cancle" Margin="10 0 0 0" Click="btn_cancle_Click">
+                    取消
+                </Button>
+            </StackPanel>
+        </StackPanel>
+        <Grid x:Name="grid_info"></Grid>
+    </Grid>
+</Window>
