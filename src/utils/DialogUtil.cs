@@ -17,7 +17,7 @@ namespace Nine_colored_deer_Sharp.utils
 
         public static void success(Grid GrdContainer, string msg, int second = 3)
         {
-            App.Current.Dispatcher.Invoke(() =>
+            App.Current?.Dispatcher?.Invoke(() =>
             {
                 CancellationToken token = cts.Token;
                 if (lastTask != null)
@@ -119,7 +119,7 @@ namespace Nine_colored_deer_Sharp.utils
 
         public static void info(Grid GrdContainer, string msg, int second = 3, double marginBottom = 200)
         {
-            App.Current.Dispatcher.Invoke(() =>
+            App.Current?.Dispatcher?.Invoke(() =>
             {
                 CancellationToken token = cts.Token;
                 if (lastTask != null)

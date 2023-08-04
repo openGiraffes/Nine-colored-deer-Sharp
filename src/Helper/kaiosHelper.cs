@@ -52,16 +52,19 @@ namespace Nine_colored_deer_Sharp.Helper
                         var Properties = client.GetProperties(device);
                         var model = Properties["ro.product.model"];
                         _nowdevice.Model = model;
-                        App.Current.Dispatcher.Invoke(() =>
+                        App.Current?.Dispatcher?.Invoke(() =>
                         {
                             MainWindow.self.txt_Model.Content = model;
                         });
+                        Task.Run(() =>
+                        {
+                            getMemory();
+                        });
 
-                        getMemory();
                     }
                     else
                     {
-                        App.Current.Dispatcher.Invoke(() =>
+                        App.Current?.Dispatcher?.Invoke(() =>
                         {
                             MainWindow.self.txt_Model.Content = "无设备-点击刷新";
                         });
@@ -140,7 +143,7 @@ namespace Nine_colored_deer_Sharp.Helper
                 }
                 DeviceData device = null;
                 PhoneSelecterWindow selectphopnewin = null;
-                App.Current.Dispatcher.Invoke(() =>
+                App.Current?.Dispatcher?.Invoke(() =>
                 {
                     selectphopnewin = new PhoneSelecterWindow(devices);
                     selectphopnewin.Owner = MainWindow.self;
@@ -193,7 +196,11 @@ namespace Nine_colored_deer_Sharp.Helper
 
                 while (buffer[0] != 58)
                 {
-                    tcpClient.Receive(buffer, 1, SocketFlags.None);
+                    var tmp = tcpClient.Receive(buffer, 1, SocketFlags.None);
+                    if (tmp <= 0)
+                    {
+                        break;
+                    }
                     if (buffer[0] != 58)
                     {
                         bytes.Add(buffer[0]);
@@ -224,7 +231,10 @@ namespace Nine_colored_deer_Sharp.Helper
                 while (buffer[0] != 58)
                 {
                     var ret = tcpClient.Receive(buffer, 1, SocketFlags.None);
-
+                    if (ret <= 0)
+                    {
+                        break;
+                    }
                     if (buffer[0] != 58)
                     {
                         bytes.Add(buffer[0]);
@@ -266,7 +276,11 @@ namespace Nine_colored_deer_Sharp.Helper
 
                 while (buffer[0] != 58)
                 {
-                    tcpClient.Receive(buffer, 1, SocketFlags.None);
+                    var ret = tcpClient.Receive(buffer, 1, SocketFlags.None);
+                    if (ret <= 0)
+                    {
+                        break;
+                    }
                     if (buffer[0] != 58)
                     {
                         bytes.Add(buffer[0]);
@@ -297,7 +311,11 @@ namespace Nine_colored_deer_Sharp.Helper
 
                 while (buffer[0] != 58)
                 {
-                    tcpClient.Receive(buffer, 1, SocketFlags.None);
+                    var ret = tcpClient.Receive(buffer, 1, SocketFlags.None);
+                    if (ret <= 0)
+                    {
+                        break;
+                    }
                     if (buffer[0] != 58)
                     {
                         bytes.Add(buffer[0]);
