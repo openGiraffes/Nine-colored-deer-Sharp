@@ -127,7 +127,6 @@ namespace Nine_colored_deer_Sharp
             {
                 this.WindowState = WindowState.Maximized;
             }
-
         }
 
         private void btn_close_Click(object sender, RoutedEventArgs e)

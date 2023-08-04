@@ -19,7 +19,9 @@
             <RowDefinition Height="80px"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <hc:SimplePanel Background="#018beb" MouseDown="SimplePanel_MouseDown">
+        <hc:SimplePanel Background="#018beb" MouseLeftButtonDown="SimplePanel_MouseDown">
+
+            <TextBlock Text="KaiOS手机助手" FontSize="22"  HorizontalAlignment="Left" Margin="20 20 0 0" VerticalAlignment="Top" Foreground="White"></TextBlock>
 
             <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0 10 10 0 ">
 
@@ -89,6 +91,7 @@
             </StackPanel>
 
         </hc:SimplePanel>
+
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
