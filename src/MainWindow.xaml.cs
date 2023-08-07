@@ -1,8 +1,10 @@
-﻿using Nine_colored_deer_Sharp.Helper;
+﻿using Nine_colored_deer_Sharp.Beans;
+using Nine_colored_deer_Sharp.Helper;
 using Nine_colored_deer_Sharp.utils;
 using SharpAdbClient;
 using SharpAdbClient.DeviceCommands;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,12 +30,19 @@ namespace Nine_colored_deer_Sharp
     public partial class MainWindow : Window
     {
         public static MainWindow self;
+        bool isclosed = false;
         public MainWindow()
         {
             InitializeComponent();
             grid_info.Visibility = Visibility.Visible;
             self = this;
             this.Loaded += MainWindow_Loaded;
+            this.Closing += MainWindow_Closing;
+        }
+
+        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            isclosed = true;
         }
 
         //private void getMobileInfo()
@@ -83,6 +92,10 @@ namespace Nine_colored_deer_Sharp
                 {
                     try
                     {
+                        if (isclosed)
+                        {
+                            break;
+                        }
                         if (autorefresh)
                         {
                             if (helper != null)
@@ -330,7 +343,7 @@ namespace Nine_colored_deer_Sharp
 
         private void btn_filemanage_Click(object sender, RoutedEventArgs e)
         {
-            SimKey("*");
+            //SimKey("*");
         }
 
         Dictionary<string, string> KeyCodeList = new Dictionary<string, string>()
@@ -364,6 +377,10 @@ namespace Nine_colored_deer_Sharp
         {
             var client = kaiosHelper.getAdbClient();
             var device = kaiosHelper.getAdbDevice();
+            if (device == null)
+            {
+                return;
+            }
 
             var key = KeyCodeList[keycode].PadLeft(4, '0');
 
@@ -379,7 +396,10 @@ namespace Nine_colored_deer_Sharp
         {
             var client = kaiosHelper.getAdbClient();
             var device = kaiosHelper.getAdbDevice();
-
+            if (device == null)
+            {
+                return;
+            }
             var key = KeyCodeList[keycode].PadLeft(4, '0');
 
             client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0001 " + key + " 00000001", null);
@@ -390,7 +410,10 @@ namespace Nine_colored_deer_Sharp
         {
             var client = kaiosHelper.getAdbClient();
             var device = kaiosHelper.getAdbDevice();
-
+            if (device == null)
+            {
+                return;
+            }
             var key = KeyCodeList[keycode].PadLeft(4, '0');
 
             client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0001 " + key + " 00000000", null);
@@ -430,6 +453,401 @@ namespace Nine_colored_deer_Sharp
         {
             var ischeck = ckb_autorefresh.IsChecked == true;
             autorefresh = ischeck;
+        }
+
+        private async void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (tabs.SelectedIndex == 1)
+            {
+                if (itemsfiles.ItemsSource == null)
+                {
+                    itemsfiles.ItemsSource = await getRootFiles();
+                }
+            }
+        }
+
+        private string NowPath = "";
+        private async Task<List<FileItem>> getRootFiles(string path = "/")
+        {
+            var client = kaiosHelper.getAdbClient();
+            var device = kaiosHelper.getAdbDevice();
+            if (device == null)
+            {
+                return null;
+            }
+
+            FileReceiver fileReceiver = new FileReceiver();
+            await client.ExecuteRemoteCommandAsync("ls -la " + path + " -F", device, fileReceiver, Encoding.UTF8, CancellationToken.None);
+
+            while (fileReceiver.isCompleted == false)
+            {
+                Thread.Sleep(100);
+            }
+            if (fileReceiver.FileList != null)
+            {
+                foreach (var f in fileReceiver.FileList)
+                {
+                    f.parent = path;
+                }
+            }
+            NowPath = path;
+            txt_nowdir.Text = NowPath;
+            return fileReceiver.FileList;
+        }
+
+        private async void grid_fileinfo_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                if (e.ClickCount == 2)
+                {
+
+                    FileItem item = (sender as Grid)?.Tag as FileItem;
+                    if (item != null)
+                    {
+                        if (item.isDirectory)
+                        {
+                            string path = "";
+                            if (item.parent.EndsWith("/"))
+                            {
+                                path = item.parent + item.name + "/";
+                            }
+                            else
+                            {
+                                path = item.parent + "/" + item.name + "/";
+                            }
+
+                            itemsfiles.ItemsSource = await getRootFiles(path);
+                        }
+                        else if (item.isLink)
+                        {
+                            DialogUtil.info(grid_info, "暂时不可以操作link");
+                        }
+                        else
+                        {
+                            var device = kaiosHelper.getAdbDevice();
+                            if (device != null)
+                            {
+                                var path = "";
+                                if (item.parent.EndsWith("/"))
+                                {
+                                    path = item.parent + item.name;
+                                }
+                                else
+                                {
+                                    path = item.parent + "/" + item.name;
+                                }
+                                if (MessageBox.Show("是否下载文件:" + path + "？", "下载确认", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                                {
+                                    try
+                                    {
+                                        if (Directory.Exists(Directory.GetCurrentDirectory() + "/download") == false)
+                                        {
+                                            Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/download");
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                    var downpath = Directory.GetCurrentDirectory() + "\\download\\" + item.name;
+                                    var shelldata = path;
+                                    kaiosHelper.DownloadFile(shelldata, downpath);
+                                    DialogUtil.success(grid_info, "成功下载 " + path + " 到 download 目录");
+                                }
+                            }
+                            else
+                            {
+                                DialogUtil.info(grid_info, "无法获取到当前设备状态");
+                            }
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                DialogUtil.info(grid_info, "操作失败：" + ex.Message);
+            }
+        }
+        private async void refreshFileList()
+        {
+            try
+            {
+                var file = NowPath;
+                if (string.IsNullOrWhiteSpace(file))
+                {
+                    itemsfiles.ItemsSource = await getRootFiles();
+                }
+                else
+                {
+                    itemsfiles.ItemsSource = await getRootFiles(file);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                DialogUtil.info(grid_info, "操作失败：" + ex.Message);
+                Console.WriteLine(ex.Message);
+            }
+        }
+        private async void btn_refreshFileList_Click(object sender, RoutedEventArgs e)
+        {
+            refreshFileList();
+        }
+
+        private async void btn_uploadFile_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var file = NowPath;
+                if (string.IsNullOrWhiteSpace(file))
+                {
+                    file = "/";
+                }
+                var openFileDialog = new Microsoft.Win32.OpenFileDialog()
+                {
+                    Filter = "All files (*.*)|*.*"
+                };
+                var result = openFileDialog.ShowDialog();
+                if (result == true)
+                {
+
+                    var filename = openFileDialog.FileName;
+                    var fname = System.IO.Path.GetFileName(filename);
+                    if (file.EndsWith("/"))
+                    {
+                        file = file + fname;
+                    }
+                    else
+                    {
+                        file = file + "/" + fname;
+                    }
+
+                    kaiosHelper.UploadFile(file, filename);
+                    refreshFileList();
+                    DialogUtil.success(grid_info, "已成功上传至" + file);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                DialogUtil.info(grid_info, "上传失败" + ex.Message);
+            }
+        }
+
+        private async void btn_newDir_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                InputDialog inputDialog = new InputDialog();
+                inputDialog.Owner = this;
+                inputDialog.ShowDialog();
+                if (string.IsNullOrWhiteSpace(inputDialog.value))
+                {
+                    return;
+                }
+                var filename = inputDialog.value;
+
+                var device = kaiosHelper.getAdbDevice();
+                if (device != null)
+                {
+                    var client = kaiosHelper.getAdbClient();
+                    var path = NowPath;
+                    if (path.EndsWith("/"))
+                    {
+                        path = NowPath + filename;
+                    }
+                    else
+                    {
+                        path = NowPath + "/" + filename;
+                    }
+                    path = "mkdir " + path;
+                    byte[] bytes = Encoding.Default.GetBytes(path);
+                    bytes = Encoding.Convert(Encoding.Default, Encoding.UTF8, bytes);
+                    string strResult = Encoding.UTF8.GetString(bytes);
+
+                    await client.ExecuteRemoteCommandAsync(strResult, device, null, Encoding.UTF8, CancellationToken.None);
+                    refreshFileList();
+                }
+                else
+                {
+                    DialogUtil.info(grid_info, "无法获取到当前设备状态");
+                }
+            }
+            catch (Exception ex)
+            {
+                DialogUtil.info(grid_info, "操作失败：" + ex.Message);
+            }
+        }
+
+        private async void btn_return_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string file = "";
+                if (NowPath.EndsWith("/") && NowPath != "/")
+                {
+                    file = NowPath.Substring(0, NowPath.LastIndexOf("/", NowPath.Length - 2));
+                }
+                else
+                {
+                    file = NowPath.Substring(0, NowPath.LastIndexOf("/"));
+                }
+                if (string.IsNullOrWhiteSpace(file))
+                {
+                    itemsfiles.ItemsSource = await getRootFiles();
+                }
+                else
+                {
+                    itemsfiles.ItemsSource = await getRootFiles(file);
+                }
+            }
+            catch (Exception ex)
+            {
+                DialogUtil.info(grid_info, "操作失败：" + ex.Message);
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        private void grid_fileinfo_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private async void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                MenuItem menu = sender as MenuItem;
+                var header = menu.Header.ToString();
+                if (header == "刷新列表")
+                {
+                    refreshFileList();
+                    return;
+                }
+                if (menu != null)
+                {
+                    var cm = menu.Parent as ContextMenu;
+                    if (cm == null)
+                    {
+                        return;
+                    }
+                    var grid = cm.PlacementTarget as Grid;
+                    if (grid != null)
+                    {
+                        var tag = grid.Tag as FileItem;
+                        if (tag != null)
+                        {
+                            if (header == "下载文件")
+                            {
+                                if (tag.isDirectory)
+                                {
+                                    DialogUtil.info(grid_info, "文件夹请手动下载！");
+                                    return;
+                                }
+                                var device = kaiosHelper.getAdbDevice();
+                                if (device != null)
+                                {
+                                    var path = "";
+                                    if (tag.parent.EndsWith("/"))
+                                    {
+                                        path = tag.parent + tag.name;
+                                    }
+                                    else
+                                    {
+                                        path = tag.parent + "/" + tag.name;
+                                    }
+                                    try
+                                    {
+                                        if (Directory.Exists(Directory.GetCurrentDirectory() + "/download") == false)
+                                        {
+                                            Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/download");
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                    var downpath = Directory.GetCurrentDirectory() + "\\download\\" + tag.name;
+                                    var shelldata = path;
+                                    kaiosHelper.DownloadFile(shelldata, downpath);
+                                    DialogUtil.success(grid_info, "成功下载 " + path + " 到 download 目录");
+                                }
+                                else
+                                {
+                                    DialogUtil.info(grid_info, "无法获取到当前设备状态");
+                                }
+                            }
+                            else if (header == "删除文件")
+                            {
+                                var device = kaiosHelper.getAdbDevice();
+                                if (device != null)
+                                {
+                                    var path = tag.parent + tag.name;
+                                    if (path.Contains("*") || string.IsNullOrWhiteSpace(path) || path == "/")
+                                    {
+                                        DialogUtil.info(grid_info, "危险操作，文件名包含*？已经取消操作！");
+                                        return;
+                                    }
+                                    if (tag.isDirectory || tag.isLink)
+                                    {
+                                        if (MessageBox.Show("是否删除文件夹:" + path + "？", "删除确认", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                                        {
+                                            var client = kaiosHelper.getAdbClient();
+                                            await client.ExecuteRemoteCommandAsync("rm -r " + path, device, null, Encoding.UTF8, CancellationToken.None);
+                                            DialogUtil.success(grid_info, path + "删除完毕！");
+                                            refreshFileList();
+                                            return;
+                                        }
+                                    }
+
+                                    if (MessageBox.Show("是否删除文件:" + path + "？", "删除确认", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                                    {
+                                        var client = kaiosHelper.getAdbClient();
+                                        await client.ExecuteRemoteCommandAsync("rm -rf " + path, device, null, Encoding.UTF8, CancellationToken.None);
+                                        DialogUtil.success(grid_info, path + "删除成功！");
+                                    }
+                                    refreshFileList();
+                                }
+                                else
+                                {
+                                    DialogUtil.info(grid_info, "无法获取到当前设备状态");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                DialogUtil.info(grid_info, "操作失败：" + ex.Message);
+            }
+        }
+
+        private async void btn_goNei_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                itemsfiles.ItemsSource = await getRootFiles("/data/usbmsc_mnt/");
+            }
+            catch (Exception ex)
+            {
+                DialogUtil.info(grid_info, "操作失败：" + ex.Message);
+            }
+
+        }
+
+        private async void btn_goSdcard_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                itemsfiles.ItemsSource = await getRootFiles("/sdcard/");
+            }
+            catch (Exception ex)
+            {
+                DialogUtil.info(grid_info, "操作失败：" + ex.Message);
+            }
         }
     }
 }

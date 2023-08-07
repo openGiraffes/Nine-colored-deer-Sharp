@@ -16,7 +16,7 @@
     </WindowChrome.WindowChrome>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="80px"></RowDefinition>
+            <RowDefinition Height="60px"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <hc:SimplePanel Background="#018beb" MouseLeftButtonDown="SimplePanel_MouseDown">
@@ -93,128 +93,311 @@
         </hc:SimplePanel>
 
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300px"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+        <hc:TabControl hc:TabControl.ShowCloseButton="False"  hc:TabControl.ShowContextMenu="False" Grid.Row="1" Grid.RowSpan="1" Name="tabs" SelectionChanged="TabControl_SelectionChanged">
 
-            </Grid.ColumnDefinitions>
-
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-
-                <Border BorderThickness="2" BorderBrush="#cccccc" CornerRadius="10" Height="320" Width="240">
-                    <Image Name="image_screen">
-                    </Image>
-                </Border>
-
-                <Button Name="txt_Model" Click="txt_Model_Click" ToolTip="点击切换设备">
-                    <Button.Template>
-                        <ControlTemplate>
-                            <TextBlock Margin="0 10 0 0" Text="{Binding Content,RelativeSource={RelativeSource Mode=TemplatedParent}}" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
-
-                <StackPanel Margin="0 10 0 0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <Button Margin="0 0 5 0" Click="btn_shutdown_Click" Focusable="False" Name="btn_shutdown">关机</Button>
-                    <Button Margin="0 0 5 0" Click="btn_reboot_Click" Focusable="False" Name="btn_reboot">重启</Button>
-                    <Button Margin="0 0 5 0" Click="btn_refresh_Click" Focusable="False" Name="btn_refresh">刷新</Button>
-                    <Button Margin="5 0 0 0" Click="btn_screenshot_Click" Focusable="False" Name="btn_screenshot">截屏</Button>
-                    <CheckBox Content="自动刷新" Margin="5 0 0 0" Focusable="False" Name="ckb_autorefresh" Click="ckb_autorefresh_Click"></CheckBox>
-                </StackPanel>
-
-                <Grid Name="grid_keyboard" Margin="0 10 0 0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition ></RowDefinition>
-                        <RowDefinition ></RowDefinition>
-                        <RowDefinition ></RowDefinition>
-                        <RowDefinition ></RowDefinition>
-                        <RowDefinition ></RowDefinition>
-                        <RowDefinition ></RowDefinition>
-                        <RowDefinition ></RowDefinition>
-                    </Grid.RowDefinitions>
+            <hc:TabItem>
+                <hc:TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Path Stretch="Fill" Width="16" Height="24" Fill="#018beb">
+                            <Path.Data>
+                                <GeometryGroup>
+                                    <Geometry>
+                                        M798.723234 174.782745c0-60.576657-49.106418-109.683075-109.683075-109.683075l-354.708628 0c-60.576657 0-109.683075 49.106418-109.683075 109.683075l0 673.980161c0 60.576657 49.106418 109.683075 109.683075 109.683075l354.708628 0c60.576657 0 109.683075-49.106418 109.683075-109.683075L798.723234 174.782745zM264.557398 237.015112l494.256894 0 0 529.049305-494.256894 0L264.557398 237.015112zM334.356091 105.008612 689.016623 105.008612c38.548968 0 69.798692 31.249725 69.798692 69.798692l0 22.298865-494.256894 0 0-22.298865C264.557398 136.25936 295.807123 105.008612 334.356091 105.008612zM689.016623 918.53704 334.356091 918.53704c-38.548968 0-69.798692-31.249725-69.798692-69.798692l0-43.788296 494.256894 0 0 43.788296C758.814292 887.287315 727.564567 918.53704 689.016623 918.53704z
+                                    </Geometry>
+                                    <Geometry>
+                                        M513.173732 829.943282c-16.70752 0-30.30112 13.5936-30.30112 30.30112 0 16.70752 13.5936 30.30112 30.30112 30.30112s30.299073-13.5936 30.299073-30.30112C543.472805 843.536882 529.881253 829.943282 513.173732 829.943282z
+                                    </Geometry>
+                                </GeometryGroup>
+                            </Path.Data>
+                        </Path>
+                        <TextBlock Margin="10 0 0 0" Text="我的设备" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                    </StackPanel>
+                </hc:TabItem.Header>
+                <Grid Background="White">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition></ColumnDefinition>
-                        <ColumnDefinition></ColumnDefinition>
-                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition Width="300px"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+
                     </Grid.ColumnDefinitions>
 
-                    <Button Focusable="False" Tag="softleft"  Content="左软键" Grid.Row="0"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" Grid.Column="0" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
-                    <Button Focusable="False" Tag="softright" Content="右软键" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" Grid.Column="2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
 
-                    <Button Focusable="False" Tag="menu" Content="菜单键" Grid.Row="1"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" Grid.Column="0" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
-                    <Button Focusable="False" Tag="back" Content="返回键" Grid.Row="1"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" Grid.Column="2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                        <Border BorderThickness="2" BorderBrush="#cccccc" CornerRadius="10" Height="320" Width="240">
+                            <Image Name="image_screen">
+                            </Image>
+                        </Border>
 
-                    <Button Focusable="False" Tag="call" Content="拨号键" Grid.Row="2"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" Grid.Column="0" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
-                    <Button Focusable="False" Tag="power" Content="挂机键" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" Grid.Column="2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
 
-                    <Grid Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="1" Grid.RowSpan="3">
+                        <StackPanel Margin="0 10 0 0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <Button Margin="0 0 5 0" Click="btn_shutdown_Click" Focusable="False" Name="btn_shutdown">关机</Button>
+                            <Button Margin="0 0 5 0" Click="btn_reboot_Click" Focusable="False" Name="btn_reboot">重启</Button>
+                            <Button Margin="0 0 5 0" Click="btn_refresh_Click" Focusable="False" Name="btn_refresh">刷新</Button>
+                            <Button Margin="5 0 0 0" Click="btn_screenshot_Click" Focusable="False" Name="btn_screenshot">截屏</Button>
+                            <CheckBox Content="自动刷新" Margin="5 0 0 0" Focusable="False" Name="ckb_autorefresh" Click="ckb_autorefresh_Click"></CheckBox>
+                        </StackPanel>
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
+                        <Grid Name="grid_keyboard" Margin="0 10 0 0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition ></RowDefinition>
+                                <RowDefinition ></RowDefinition>
+                                <RowDefinition ></RowDefinition>
+                                <RowDefinition ></RowDefinition>
+                                <RowDefinition ></RowDefinition>
+                                <RowDefinition ></RowDefinition>
+                                <RowDefinition ></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Focusable="False" Tag="softleft"  Content="左软键" Grid.Row="0"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" Grid.Column="0" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                            <Button Focusable="False" Tag="softright" Content="右软键" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" Grid.Column="2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+
+                            <Button Focusable="False" Tag="menu" Content="菜单键" Grid.Row="1"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" Grid.Column="0" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                            <Button Focusable="False" Tag="back" Content="返回键" Grid.Row="1"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" Grid.Column="2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+
+                            <Button Focusable="False" Tag="call" Content="拨号键" Grid.Row="2"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" Grid.Column="0" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                            <Button Focusable="False" Tag="power" Content="挂机键" Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" Grid.Column="2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+
+                            <Grid Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="1" Grid.RowSpan="3">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition></ColumnDefinition>
+                                    <ColumnDefinition></ColumnDefinition>
+                                    <ColumnDefinition></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Button Focusable="False" Tag="ok" Content="OK"  Grid.Row="1" Margin="1" Padding="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                                <Button Focusable="False" Tag="up" Content="上"  Grid.Row="0" Margin="1" Padding="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                                <Button Focusable="False" Tag="down" Content="下"  Grid.Row="2" Margin="1" Padding="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                                <Button Focusable="False" Tag="left" Content="左"  Grid.Row="1" Margin="1" Padding="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="0" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                                <Button Focusable="False" Tag="right" Content="右"  Grid.Row="1" Margin="1" Padding="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+
+                            </Grid>
+
+                            <Button Focusable="False" Tag="1" Content="1" Grid.Row="4" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+
+                            <Button Focusable="False" Tag="2" Content="2" Grid.Row="4" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                            <Button Focusable="False" Tag="3" Content="3" Grid.Row="4" Grid.Column="2"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+
+                            <Button Focusable="False" Tag="4" Content="4" Grid.Row="5" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                            <Button Focusable="False" Tag="5" Content="5" Grid.Row="5" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                            <Button Focusable="False" Tag="6" Content="6" Grid.Row="5" Grid.Column="2"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+
+                            <Button Focusable="False" Tag="7" Content="7" Grid.Row="6" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                            <Button Focusable="False" Tag="8" Content="8" Grid.Row="6" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                            <Button Focusable="False" Tag="9" Content="9" Grid.Row="6" Grid.Column="2"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+
+                            <Button Focusable="False" Tag="*" Content="*" Grid.Row="7" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                            <Button Focusable="False" Tag="0" Content="0" Grid.Row="7" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                            <Button Focusable="False" Tag="#" Content="#" Grid.Row="7" Grid.Column="2"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+
+
+                        </Grid>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+
+                        <Button Name="txt_Model" Click="txt_Model_Click" ToolTip="点击切换设备" Padding="0" Margin="0 10 0 30" HorizontalAlignment="Left">
+                            <Button.Template>
+                                <ControlTemplate>
+                                    <TextBlock Margin="0 0 0 0" Text="{Binding Content,RelativeSource={RelativeSource Mode=TemplatedParent}}" FontSize="36" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <TextBlock HorizontalAlignment="Left" Name="txt_cpu" Margin="0 10 0 10"></TextBlock>
+
+                        <TextBlock HorizontalAlignment="Left" Name="txt_cpuabi" Margin="0 10 0 10"></TextBlock>
+
+                        <TextBlock HorizontalAlignment="Left" Name="txt_uptime" Margin="0 10 0 10"></TextBlock>
+
+                        <TextBlock HorizontalAlignment="Left" Name="txt_baseos" Margin="0 10 0 10"></TextBlock>
+
+                        <TextBlock HorizontalAlignment="Left" Name="txt_serial" Margin="0 10 0 10"></TextBlock>
+
+                        <TextBlock HorizontalAlignment="Left" Name="txt_kenral" Margin="0 10 0 10"></TextBlock>
+
+
+                        <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Center" Name="txt_memory" Margin="0 50 0 0"></TextBlock>
+                    </StackPanel>
+                </Grid>
+
+            </hc:TabItem>
+            <hc:TabItem>
+                <hc:TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Path Stretch="Fill" Width="20" Height="20" Fill="#018beb">
+                            <Path.Data>
+                                <GeometryGroup>
+                                    <Geometry>
+                                        M912 208H427.872l-50.368-94.176A63.936 63.936 0 0 0 321.056 80H112c-35.296 0-64 28.704-64 64v736c0 35.296 28.704 64 64 64h800c35.296 0 64-28.704 64-64v-608c0-35.296-28.704-64-64-64z m-800-64h209.056l68.448 128H912v97.984c-0.416 0-0.8-0.128-1.216-0.128H113.248c-0.416 0-0.8 0.128-1.248 0.128V144z m0 736v-96l1.248-350.144 798.752 1.216V784h0.064v96H112z
+                                    </Geometry>
+                                </GeometryGroup>
+                            </Path.Data>
+                        </Path>
+                        <TextBlock Margin="10 0 0 0" Text="文件管理" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                    </StackPanel>
+                </hc:TabItem.Header>
+
+                <Grid  Background="White">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition Width="200"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid Background="White" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="10 0">
                         <Grid.RowDefinitions>
-                            <RowDefinition></RowDefinition>
-                            <RowDefinition></RowDefinition>
+                            <RowDefinition Height="40"></RowDefinition>
                             <RowDefinition></RowDefinition>
                         </Grid.RowDefinitions>
-                        <Button Focusable="False" Tag="ok" Content="OK"  Grid.Row="1" Margin="1" Padding="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
-                        <Button Focusable="False" Tag="up" Content="上"  Grid.Row="0" Margin="1" Padding="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
-                        <Button Focusable="False" Tag="down" Content="下"  Grid.Row="2" Margin="1" Padding="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
-                        <Button Focusable="False" Tag="left" Content="左"  Grid.Row="1" Margin="1" Padding="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="0" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
-                        <Button Focusable="False" Tag="right" Content="右"  Grid.Row="1" Margin="1" Padding="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                        <Grid VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="名称"></TextBlock>
+                            <TextBlock Grid.Column="1"  Text="是否是目录"></TextBlock>
+                            <TextBlock Grid.Column="2"  Text="是否是链接"></TextBlock>
+                            <TextBlock Grid.Column="3" Text="大小"></TextBlock>
+                        </Grid>
+                        <hc:ScrollViewer  Grid.Row="1">
+                            <ItemsControl Name="itemsfiles" Focusable="False" Margin="20 10 10 20">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel >
 
+                                        </StackPanel>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Name="grid_fileinfo" Height="30" Tag="{Binding}" MouseLeftButtonDown="grid_fileinfo_MouseLeftButtonDown" MouseRightButtonDown="grid_fileinfo_MouseRightButtonDown">
+                                            <Grid.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="删除文件" Click="MenuItem_Click"></MenuItem>
+                                                    <MenuItem Header="下载文件" Click="MenuItem_Click"></MenuItem>
+                                                    <MenuItem Header="刷新列表" Click="MenuItem_Click"></MenuItem>
+                                                </ContextMenu>
+                                            </Grid.ContextMenu>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="2*"></ColumnDefinition>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+
+
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                <Path Stretch="Fill" Width="14" Height="16" VerticalAlignment="Center" Fill="#018beb" Visibility="{Binding isDirectory,Converter={StaticResource Boolean2VisibilityConverter }}">
+                                                    <Path.Data>
+                                                        <GeometryGroup>
+                                                            <Geometry>
+                                                                M912 208H427.872l-50.368-94.176A63.936 63.936 0 0 0 321.056 80H112c-35.296 0-64 28.704-64 64v736c0 35.296 28.704 64 64 64h800c35.296 0 64-28.704 64-64v-608c0-35.296-28.704-64-64-64z m-800-64h209.056l68.448 128H912v97.984c-0.416 0-0.8-0.128-1.216-0.128H113.248c-0.416 0-0.8 0.128-1.248 0.128V144z m0 736v-96l1.248-350.144 798.752 1.216V784h0.064v96H112z
+                                                            </Geometry>
+                                                        </GeometryGroup>
+                                                    </Path.Data>
+                                                </Path>
+                                                <Path Stretch="Fill" Width="14" Height="16" VerticalAlignment="Center" Fill="#018beb" Visibility="{Binding isDirectory,Converter={StaticResource Boolean2VisibilityReConverter}}">
+                                                    <Path.Data>
+                                                        <GeometryGroup>
+                                                            <Geometry>
+                                                                M815.104 69.632q27.648 25.6 44.032 42.496t25.088 28.672 10.752 19.968 2.048 14.336l0 16.384-151.552 0q-10.24 0-17.92-7.68t-12.8-17.92-7.68-20.992-2.56-16.896l0-126.976 3.072 0q8.192 0 16.896 2.56t19.968 9.728 28.16 20.48 42.496 35.84zM640 129.024q0 20.48 6.144 42.496t19.456 40.96 33.792 31.232 48.128 12.288l149.504 0 0 577.536q0 29.696-11.776 53.248t-31.232 39.936-43.008 25.6-46.08 9.216l-503.808 0q-19.456 0-42.496-11.264t-43.008-29.696-33.28-41.984-13.312-49.152l0-696.32q0-21.504 9.728-44.544t26.624-42.496 38.4-32.256 45.056-12.8l391.168 0 0 128zM704.512 768q26.624 0 45.056-18.944t18.432-45.568-18.432-45.056-45.056-18.432l-384 0q-26.624 0-45.056 18.432t-18.432 45.056 18.432 45.568 45.056 18.944l384 0zM768 448.512q0-26.624-18.432-45.568t-45.056-18.944l-384 0q-26.624 0-45.056 18.944t-18.432 45.568 18.432 45.056 45.056 18.432l384 0q26.624 0 45.056-18.432t18.432-45.056z
+                                                            </Geometry>
+                                                        </GeometryGroup>
+                                                    </Path.Data>
+                                                </Path>
+                                                <TextBlock Grid.Column="0" Margin="5 0 0 0" ToolTip="{Binding name}" Text="{Binding name}">
+                                                </TextBlock>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding isDirectory}"></TextBlock>
+                                            <TextBlock Grid.Column="2"  VerticalAlignment="Center" Text="{Binding isLink}"></TextBlock>
+                                            <TextBlock Grid.Column="3" VerticalAlignment="Center"  Text="{Binding size}"></TextBlock>
+                                            <Grid.Style>
+                                                <Style TargetType="Grid">
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="Wheat" ></Setter>
+                                                        </Trigger>
+                                                        <Trigger Property="IsMouseOver" Value="False">
+                                                            <Setter Property="Background" Value="Transparent" ></Setter>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Grid.Style>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </hc:ScrollViewer>
                     </Grid>
 
-                    <Button Focusable="False" Tag="1" Content="1" Grid.Row="4" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                    <StackPanel Orientation="Vertical" Grid.Column="1" Margin="0 20 0 0">
 
-                    <Button Focusable="False" Tag="2" Content="2" Grid.Row="4" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
-                    <Button Focusable="False" Tag="3" Content="3" Grid.Row="4" Grid.Column="2"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                        <TextBlock>
+                            当前目录：
+                        </TextBlock>
 
-                    <Button Focusable="False" Tag="4" Content="4" Grid.Row="5" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
-                    <Button Focusable="False" Tag="5" Content="5" Grid.Row="5" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
-                    <Button Focusable="False" Tag="6" Content="6" Grid.Row="5" Grid.Column="2"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                        <TextBlock Text="/" Name="txt_nowdir" TextWrapping="Wrap">
+                        </TextBlock>
 
-                    <Button Focusable="False" Tag="7" Content="7" Grid.Row="6" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
-                    <Button Focusable="False" Tag="8" Content="8" Grid.Row="6" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
-                    <Button Focusable="False" Tag="9" Content="9" Grid.Row="6" Grid.Column="2"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                        <Button Name="btn_return" Margin="0 10 0 0 " Click="btn_return_Click" Focusable="False" Width="120">
+                            返回上级
+                        </Button>
 
-                    <Button Focusable="False" Tag="*" Content="*" Grid.Row="7" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
-                    <Button Focusable="False" Tag="0" Content="0" Grid.Row="7" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
-                    <Button Focusable="False" Tag="#" Content="#" Grid.Row="7" Grid.Column="2"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="5 2" PreviewMouseLeftButtonDown="Button_MouseLeftButtonDown" PreviewMouseLeftButtonUp="Button_MouseLeftButtonUp"></Button>
+                        <Button Name="btn_refreshFileList" Margin="0 10 0 0 " Click="btn_refreshFileList_Click" Focusable="False" Width="120">
+                            刷新列表
+                        </Button>
+
+                        <Button Name="btn_goNei" Margin="0 10 0 0" Click="btn_goNei_Click" Focusable="False" Width="120">
+                            前往内置存储
+                        </Button>
+
+
+                        <Button Name="btn_goSdcard" Margin="0 10 0 0" Click="btn_goSdcard_Click" Focusable="False" Width="120">
+                            前往SD卡
+                        </Button>
+
+                        <Button Name="btn_uploadFile" Margin="0 10 0 0" Click="btn_uploadFile_Click" Focusable="False" Width="120">
+                            上传文件
+                        </Button>
+
+                        <Button Name="btn_newDir" Margin="0 10 0 0"  Click="btn_newDir_Click" Focusable="False" Width="120">
+                            新建文件夹
+                        </Button>
+
+                    </StackPanel>
+                </Grid>
+            </hc:TabItem>
+
+            <hc:TabItem>
+                <hc:TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Path Stretch="Fill" Width="20" Height="20" Fill="#018beb">
+                            <Path.Data>
+                                <GeometryGroup>
+                                    <Geometry>
+                                        M213.333333 554.666667h298.666667v298.666666H213.333333v-298.666666z m42.666667 42.666666v213.333334h213.333333v-213.333334H256zM213.333333 213.333333h298.666667v298.666667H213.333333V213.333333z m42.666667 42.666667v213.333333h213.333333V256H256z m298.666667-42.666667h298.666666v298.666667h-298.666666V213.333333z m42.666666 42.666667v213.333333h213.333334V256h-213.333334z m-42.666666 298.666667h298.666666v298.666666h-298.666666v-298.666666z m42.666666 42.666666v213.333334h213.333334v-213.333334h-213.333334z
+                                    </Geometry>
+                                </GeometryGroup>
+                            </Path.Data>
+                        </Path>
+                        <TextBlock Margin="10 0 0 0" Text="应用管理" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                    </StackPanel>
+                </hc:TabItem.Header>
+
+                <Grid Background="White">
 
 
                 </Grid>
-            </StackPanel>
-            <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <UniformGrid Rows="1" Columns="2" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500" Height="200">
-
-                    <Button Name="btn_filemanage" Height="200" Width="250" Click="btn_filemanage_Click" >
-                        <Button.Template>
-                            <ControlTemplate>
-                                <Border Background="#ffca00" Margin="5">
-                                    <TextBlock Text="文件管理" Foreground="White" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
-                                </Border>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-
-                    <Button Name="btn_appmanage"  Height="200" Width="250"  Click="btn_appmanage_Click" >
-                        <Button.Template>
-                            <ControlTemplate>
-                                <Border Background="#29a6ff" Margin="5">
-                                    <TextBlock Text="应用管理" Foreground="White" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
-                                </Border>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-
-                </UniformGrid>
-                <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Center" Name="txt_memory" Margin="0 50 0 0"></TextBlock>
-            </StackPanel>
-        </Grid>
+            </hc:TabItem>
+        </hc:TabControl>
 
         <Grid Name="grid_info" Grid.RowSpan="2" Visibility="Collapsed">
 

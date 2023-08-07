@@ -52,13 +52,29 @@ namespace Nine_colored_deer_Sharp.Helper
                         var Properties = client.GetProperties(device);
                         var model = Properties["ro.product.model"];
                         _nowdevice.Model = model;
+
+                        var abi = Properties["ro.product.cpu.abi"];
+                        var pl = Properties["ro.board.platform"];
+                        var baseos = Properties["ro.build.version.base_os"];
+                        var serial = Properties["ro.boot.serialno"];
+
                         App.Current?.Dispatcher?.Invoke(() =>
                         {
                             MainWindow.self.txt_Model.Content = model;
+
+                            MainWindow.self.txt_cpu.Text = "CPU：" + pl;
+                            MainWindow.self.txt_cpuabi.Text = "CPU架构：" + abi;
+                            MainWindow.self.txt_baseos.Text = "系统版本：" + baseos;
+                            MainWindow.self.txt_serial.Text = "序列号：" + serial;
+                            //MainWindow.self.txt_kenral.Text = "内核版本：" + kenral;
+
+
                         });
                         Task.Run(() =>
                         {
                             getMemory();
+                            getUpTime();
+                            getKenralVersion();
                         });
 
                     }
@@ -79,9 +95,30 @@ namespace Nine_colored_deer_Sharp.Helper
             var device = nowdevice;
             if (device != null)
             {
-                client.ExecuteShellCommand(device, "df", new OutPutReveiver());
+                client.ExecuteShellCommand(device, "df /sdcard", new OutPutReveiver());
             }
         }
+        private static void getKenralVersion()
+        {
+            var client = kaiosHelper.getAdbClient();
+            var device = nowdevice;
+            if (device != null)
+            {
+                client.ExecuteShellCommand(device, "cat /proc/version", new OutPutReveiver());
+            }
+        }
+
+
+        private static void getUpTime()
+        {
+            var client = kaiosHelper.getAdbClient();
+            var device = nowdevice;
+            if (device != null)
+            {
+                client.ExecuteShellCommand(device, "uptime", new OutPutReveiver());
+            }
+        }
+
 
         private static AdbClient client { get; set; }
         public static AdbClient getAdbClient()
@@ -89,6 +126,7 @@ namespace Nine_colored_deer_Sharp.Helper
             if (client == null)
             {
                 client = new AdbClient();
+
             }
             return client;
         }
@@ -347,6 +385,31 @@ namespace Nine_colored_deer_Sharp.Helper
             }
         }
 
+        public static void DownloadFile(string remotefile, string localpath)
+        {
+            AdbClient client = getAdbClient();
+            var device = getAdbDevice();
+            using (SyncService service = new SyncService(new AdbSocket(client.EndPoint), device))
+            {
+                using (Stream stream = File.OpenWrite(localpath))
+                {
+                    service.Pull(remotefile, stream, null, CancellationToken.None);
+                }
+            }
+        }
+
+        public static void UploadFile(string remotefile, string localpath)
+        {
+            AdbClient client = getAdbClient();
+            var device = getAdbDevice();
+            using (SyncService service = new SyncService(new AdbSocket(client.EndPoint), device))
+            {
+                using (Stream stream = File.OpenRead(localpath))
+                {
+                    service.Push(stream, remotefile, 777, DateTimeOffset.Now, null, CancellationToken.None);
+                }
+            }
+        }
 
         public static bool checkAdbStatus()
         {
