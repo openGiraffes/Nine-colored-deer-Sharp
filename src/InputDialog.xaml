@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Nine_colored_deer_Sharp"
         mc:Ignorable="d"
         WindowStartupLocation="CenterOwner"
-        Title="请输入数据(中文可能会乱码)" Height="300" Width="400">
+        Title="请输入数据" Height="300" Width="400">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition></RowDefinition>

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using Nine_colored_deer_Sharp.utils;
-using SharpAdbClient;
-using SharpAdbClient.DeviceCommands;
+using AdvancedSharpAdbClient;
+using AdvancedSharpAdbClient.DeviceCommands;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -146,7 +146,7 @@ namespace Nine_colored_deer_Sharp.Helper
                 }
 
                 var adbclient = getAdbClient();
-                var devices = adbclient.GetDevices();
+                var devices = adbclient.GetDevices().ToList();
 
                 if (nowdevice != null)
                 {

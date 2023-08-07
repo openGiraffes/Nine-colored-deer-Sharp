@@ -1,5 +1,5 @@
 ﻿using Nine_colored_deer_Sharp.utils;
-using SharpAdbClient;
+using AdvancedSharpAdbClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;

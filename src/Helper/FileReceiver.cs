@@ -1,5 +1,5 @@
 ﻿using Nine_colored_deer_Sharp.Beans;
-using SharpAdbClient;
+using AdvancedSharpAdbClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,7 +47,7 @@ namespace Nine_colored_deer_Sharp.Helper
             else if (start == "-")
             {
                 //is file
-                fileItem.name = info[6];
+                fileItem.name = string.Join(" ", info.Skip(6).ToArray());
                 fileItem.isLink = false;
                 fileItem.isDirectory = false;
                 fileItem.parent = null;

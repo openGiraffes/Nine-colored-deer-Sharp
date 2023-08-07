@@ -1,8 +1,8 @@
 ﻿using Nine_colored_deer_Sharp.Beans;
 using Nine_colored_deer_Sharp.Helper;
 using Nine_colored_deer_Sharp.utils;
-using SharpAdbClient;
-using SharpAdbClient.DeviceCommands;
+using AdvancedSharpAdbClient;
+using AdvancedSharpAdbClient.DeviceCommands;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -477,7 +477,7 @@ namespace Nine_colored_deer_Sharp
             }
 
             FileReceiver fileReceiver = new FileReceiver();
-            await client.ExecuteRemoteCommandAsync("ls -la " + path + " -F", device, fileReceiver, Encoding.UTF8, CancellationToken.None);
+            await client.ExecuteRemoteCommandAsync("ls -la \"" + path + "\" -F", device, fileReceiver, Encoding.UTF8, CancellationToken.None);
 
             while (fileReceiver.isCompleted == false)
             {
@@ -795,7 +795,7 @@ namespace Nine_colored_deer_Sharp
                                         if (MessageBox.Show("是否删除文件夹:" + path + "？", "删除确认", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                                         {
                                             var client = kaiosHelper.getAdbClient();
-                                            await client.ExecuteRemoteCommandAsync("rm -r " + path, device, null, Encoding.UTF8, CancellationToken.None);
+                                            await client.ExecuteRemoteCommandAsync("rm -r \"" + path + "\"", device, null, Encoding.UTF8, CancellationToken.None);
                                             DialogUtil.success(grid_info, path + "删除完毕！");
                                             refreshFileList();
                                             return;
@@ -805,7 +805,7 @@ namespace Nine_colored_deer_Sharp
                                     if (MessageBox.Show("是否删除文件:" + path + "？", "删除确认", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                                     {
                                         var client = kaiosHelper.getAdbClient();
-                                        await client.ExecuteRemoteCommandAsync("rm -rf " + path, device, null, Encoding.UTF8, CancellationToken.None);
+                                        await client.ExecuteRemoteCommandAsync("rm -rf \"" + path + "\"", device, null, Encoding.UTF8, CancellationToken.None);
                                         DialogUtil.success(grid_info, path + "删除成功！");
                                     }
                                     refreshFileList();
