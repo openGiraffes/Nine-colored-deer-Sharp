@@ -19,6 +19,19 @@ namespace Nine_colored_deer_Sharp.Helper
             {
                 FileList = new List<FileItem>();
             }
+            if (line.Contains("No such file or directory"))
+            {
+                FileItem fileItem2 = new FileItem();
+                fileItem2.name = "找不到文件或目录！";
+                fileItem2.isLink = false;
+                fileItem2.isDirectory = false;
+                fileItem2.parent = null;
+                fileItem2.detail = line;
+                fileItem2.size = "";
+                FileList.Add(fileItem2);
+                return;
+            }
+
             //dr-xr-xr-x root     root              1970-02-23 00:42 acct
             FileItem fileItem = new FileItem();
             string[] info = line.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
@@ -26,7 +39,7 @@ namespace Nine_colored_deer_Sharp.Helper
             if (start == "d")
             {
                 // is dir
-                fileItem.name = info[5];
+                fileItem.name = string.Join(" ", info.Skip(5).ToArray());
                 fileItem.isLink = false;
                 fileItem.isDirectory = true;
                 fileItem.parent = null;

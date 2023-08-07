@@ -33,7 +33,7 @@ namespace Nine_colored_deer_Sharp
         public string value { get; set; }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            value = this.txt1.Text;
+            value = this.txt1.Text.Trim();
             this.Close();
         }
 

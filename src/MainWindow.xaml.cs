@@ -662,12 +662,9 @@ namespace Nine_colored_deer_Sharp
                     {
                         path = NowPath + "/" + filename;
                     }
-                    path = "mkdir " + path;
-                    byte[] bytes = Encoding.Default.GetBytes(path);
-                    bytes = Encoding.Convert(Encoding.Default, Encoding.UTF8, bytes);
-                    string strResult = Encoding.UTF8.GetString(bytes);
+                    path = "mkdir \"" + path + "\"";
 
-                    await client.ExecuteRemoteCommandAsync(strResult, device, null, Encoding.UTF8, CancellationToken.None);
+                    await client.ExecuteRemoteCommandAsync(path, device, null, CancellationToken.None);
                     refreshFileList();
                 }
                 else
@@ -784,7 +781,15 @@ namespace Nine_colored_deer_Sharp
                                 var device = kaiosHelper.getAdbDevice();
                                 if (device != null)
                                 {
-                                    var path = tag.parent + tag.name;
+                                    var path = "";
+                                    if (tag.parent.EndsWith("/"))
+                                    {
+                                        path = tag.parent + tag.name;
+                                    }
+                                    else
+                                    {
+                                        path = tag.parent + "/" + tag.name;
+                                    }
                                     if (path.Contains("*") || string.IsNullOrWhiteSpace(path) || path == "/")
                                     {
                                         DialogUtil.info(grid_info, "危险操作，文件名包含*？已经取消操作！");
@@ -795,17 +800,17 @@ namespace Nine_colored_deer_Sharp
                                         if (MessageBox.Show("是否删除文件夹:" + path + "？", "删除确认", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                                         {
                                             var client = kaiosHelper.getAdbClient();
-                                            await client.ExecuteRemoteCommandAsync("rm -r \"" + path + "\"", device, null, Encoding.UTF8, CancellationToken.None);
+                                            client.ExecuteShellCommand(device, "rm -rf \"" + path + "\"", null);
                                             DialogUtil.success(grid_info, path + "删除完毕！");
                                             refreshFileList();
                                             return;
                                         }
+                                        return;
                                     }
-
                                     if (MessageBox.Show("是否删除文件:" + path + "？", "删除确认", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                                     {
                                         var client = kaiosHelper.getAdbClient();
-                                        await client.ExecuteRemoteCommandAsync("rm -rf \"" + path + "\"", device, null, Encoding.UTF8, CancellationToken.None);
+                                        client.ExecuteShellCommand(device, "rm -rf \"" + path + "\"", null);
                                         DialogUtil.success(grid_info, path + "删除成功！");
                                     }
                                     refreshFileList();
