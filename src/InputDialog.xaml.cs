@@ -19,9 +19,10 @@ namespace Nine_colored_deer_Sharp
     /// </summary>
     public partial class InputDialog : Window
     {
-        public InputDialog()
+        public InputDialog(string data = "")
         {
             InitializeComponent();
+            this.txt1.Text = data;
             this.Loaded += InputDialog_Loaded;
         }
 
@@ -31,9 +32,12 @@ namespace Nine_colored_deer_Sharp
         }
 
         public string value { get; set; }
+
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             value = this.txt1.Text.Trim();
+            this.DialogResult = true;
             this.Close();
         }
 

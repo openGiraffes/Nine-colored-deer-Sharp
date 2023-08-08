@@ -102,6 +102,7 @@
     <Compile Include="Beans\FileItem.cs" />
     <Compile Include="Helper\FileReceiver.cs" />
     <Compile Include="Helper\OutPutReveiver.cs" />
+    <Compile Include="Helper\ProcessViewer.cs" />
     <Compile Include="InputDialog.xaml.cs">
       <DependentUpon>InputDialog.xaml</DependentUpon>
     </Compile>

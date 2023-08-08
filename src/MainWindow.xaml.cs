@@ -279,22 +279,38 @@ namespace Nine_colored_deer_Sharp
                 client.ExecuteShellCommand(decive, "reboot -p", null);
             }
         }
-        private void setLoading(bool isloading)
+        public void setLoading(bool isloading)
         {
             App.Current?.Dispatcher?.Invoke(() =>
             {
                 if (isloading)
                 {
                     grid_loading.Visibility = Visibility.Visible;
+                    hc_loading.Visibility = Visibility.Visible;
                 }
                 else
                 {
                     grid_loading.Visibility = Visibility.Collapsed;
+                    hc_loading.Visibility = Visibility.Collapsed;
                 }
+                hc_progress.Visibility = Visibility.Collapsed;
+                hc_text_process.Visibility = Visibility.Collapsed;
                 hc_loading.IsRunning = isloading;
             });
-
         }
+        public void setProcess(int value)
+        {
+            App.Current?.Dispatcher?.Invoke(() =>
+            {
+                grid_loading.Visibility = Visibility.Visible;
+                hc_loading.Visibility = Visibility.Collapsed;
+                hc_text_process.Visibility = Visibility.Visible;
+                hc_progress.Visibility = Visibility.Visible;
+                hc_loading.IsRunning = false;
+                hc_progress.Value = value;
+            });
+        }
+
         private void txt_Model_Click(object sender, RoutedEventArgs e)
         {
             setLoading(true);
@@ -521,7 +537,10 @@ namespace Nine_colored_deer_Sharp
                         }
                         else if (item.isLink)
                         {
-                            DialogUtil.info(grid_info, "暂时不可以操作link");
+                            var link = item.name.Split(new string[] { ">" }, StringSplitOptions.RemoveEmptyEntries)[1].Trim();
+
+                            itemsfiles.ItemsSource = await getRootFiles(link);
+                            //DialogUtil.info(grid_info, "暂时不可以操作link");
                         }
                         else
                         {
@@ -552,8 +571,13 @@ namespace Nine_colored_deer_Sharp
                                     }
                                     var downpath = Directory.GetCurrentDirectory() + "\\download\\" + item.name;
                                     var shelldata = path;
-                                    kaiosHelper.DownloadFile(shelldata, downpath);
-                                    DialogUtil.success(grid_info, "成功下载 " + path + " 到 download 目录");
+                                    hc_text_process.Text = "正在下载文件";
+                                    await Task.Run(() =>
+                                    {
+                                        kaiosHelper.DownloadFile(shelldata, downpath, new ProcessViewer());
+                                        DialogUtil.success(grid_info, "成功下载 " + path + " 到 download 目录");
+                                    });
+
                                 }
                             }
                             else
@@ -623,10 +647,13 @@ namespace Nine_colored_deer_Sharp
                     {
                         file = file + "/" + fname;
                     }
-
-                    kaiosHelper.UploadFile(file, filename);
+                    hc_text_process.Text = "正在上传文件";
+                    await Task.Run(() =>
+                    {
+                        kaiosHelper.UploadFile(file, filename, new ProcessViewer());
+                        DialogUtil.success(grid_info, "已成功上传至" + file);
+                    });
                     refreshFileList();
-                    DialogUtil.success(grid_info, "已成功上传至" + file);
                 }
             }
             catch (Exception ex)
@@ -768,8 +795,12 @@ namespace Nine_colored_deer_Sharp
                                     }
                                     var downpath = Directory.GetCurrentDirectory() + "\\download\\" + tag.name;
                                     var shelldata = path;
-                                    kaiosHelper.DownloadFile(shelldata, downpath);
-                                    DialogUtil.success(grid_info, "成功下载 " + path + " 到 download 目录");
+                                    hc_text_process.Text = "正在下载文件";
+                                    await Task.Run(() =>
+                                    {
+                                        kaiosHelper.DownloadFile(shelldata, downpath, new ProcessViewer());
+                                        DialogUtil.success(grid_info, "成功下载 " + path + " 到 download 目录");
+                                    });
                                 }
                                 else
                                 {
@@ -800,7 +831,7 @@ namespace Nine_colored_deer_Sharp
                                         if (MessageBox.Show("是否删除文件夹:" + path + "？", "删除确认", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                                         {
                                             var client = kaiosHelper.getAdbClient();
-                                            client.ExecuteShellCommand(device, "rm -rf \"" + path + "\"", null);
+                                            client.ExecuteShellCommand(device, "rm -r \"" + path + "\"", null);
                                             DialogUtil.success(grid_info, path + "删除完毕！");
                                             refreshFileList();
                                             return;
@@ -812,6 +843,42 @@ namespace Nine_colored_deer_Sharp
                                         var client = kaiosHelper.getAdbClient();
                                         client.ExecuteShellCommand(device, "rm -rf \"" + path + "\"", null);
                                         DialogUtil.success(grid_info, path + "删除成功！");
+                                    }
+                                    refreshFileList();
+                                }
+                                else
+                                {
+                                    DialogUtil.info(grid_info, "无法获取到当前设备状态");
+                                }
+                            }
+                            else if (header == "重命名")
+                            {
+                                var device = kaiosHelper.getAdbDevice();
+                                if (device != null)
+                                {
+                                    InputDialog inputDialog = new InputDialog(tag.name);
+                                    inputDialog.Owner = this;
+                                    inputDialog.ShowDialog();
+
+                                    if (inputDialog.DialogResult == true)
+                                    {
+                                        var value = inputDialog.value;
+
+                                        var oldname = "";
+                                        var newname = "";
+                                        if (tag.parent.EndsWith("/"))
+                                        {
+                                            oldname = tag.parent + tag.name;
+                                            newname = tag.parent + value;
+                                        }
+                                        else
+                                        {
+                                            oldname = tag.parent + "/" + tag.name;
+                                            newname = tag.parent + "/" + value;
+                                        }
+                                        var client = kaiosHelper.getAdbClient();
+                                        client.ExecuteShellCommand(device, "mv \"" + oldname + "\" \"" + newname + "\"", null);
+                                        DialogUtil.success(grid_info, "重命名完毕！");
                                     }
                                     refreshFileList();
                                 }

@@ -283,6 +283,7 @@
                                                 <ContextMenu>
                                                     <MenuItem Header="删除文件" Click="MenuItem_Click"></MenuItem>
                                                     <MenuItem Header="下载文件" Click="MenuItem_Click"></MenuItem>
+                                                    <MenuItem Header="重命名" Click="MenuItem_Click"></MenuItem>
                                                     <MenuItem Header="刷新列表" Click="MenuItem_Click"></MenuItem>
                                                 </ContextMenu>
                                             </Grid.ContextMenu>
@@ -395,6 +396,7 @@
                 <Grid Background="White">
 
 
+
                 </Grid>
             </hc:TabItem>
         </hc:TabControl>
@@ -407,9 +409,12 @@
             <Grid.Background>
                 <SolidColorBrush Color="Black" Opacity="0.3"></SolidColorBrush>
             </Grid.Background>
-            <hc:LoadingCircle Name="hc_loading" IsRunning="False"></hc:LoadingCircle>
-        </Grid>
+            <hc:LoadingCircle Name="hc_loading" Visibility="Collapsed" IsRunning="False"></hc:LoadingCircle>
 
+            <hc:CircleProgressBar Name="hc_progress" Visibility="Collapsed" Value="0" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock Text="" Name="hc_text_process" Foreground="White" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0 150 0 0"></TextBlock>
+
+        </Grid>
     </Grid>
 
 </Window>

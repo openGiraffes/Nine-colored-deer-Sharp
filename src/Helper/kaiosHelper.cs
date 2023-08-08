@@ -385,7 +385,7 @@ namespace Nine_colored_deer_Sharp.Helper
             }
         }
 
-        public static void DownloadFile(string remotefile, string localpath)
+        public static void DownloadFile(string remotefile, string localpath, IProgress<int> process)
         {
             AdbClient client = getAdbClient();
             var device = getAdbDevice();
@@ -393,12 +393,12 @@ namespace Nine_colored_deer_Sharp.Helper
             {
                 using (Stream stream = File.OpenWrite(localpath))
                 {
-                    service.Pull(remotefile, stream, null, CancellationToken.None);
+                    service.Pull(remotefile, stream, process, CancellationToken.None);
                 }
             }
         }
 
-        public static void UploadFile(string remotefile, string localpath)
+        public static void UploadFile(string remotefile, string localpath, IProgress<int> process)
         {
             AdbClient client = getAdbClient();
             var device = getAdbDevice();
@@ -406,7 +406,7 @@ namespace Nine_colored_deer_Sharp.Helper
             {
                 using (Stream stream = File.OpenRead(localpath))
                 {
-                    service.Push(stream, remotefile, 777, DateTimeOffset.Now, null, CancellationToken.None);
+                    service.Push(stream, remotefile, 777, DateTimeOffset.Now, process, CancellationToken.None);
                 }
             }
         }
