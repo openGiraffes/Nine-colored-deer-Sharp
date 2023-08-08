@@ -110,6 +110,7 @@
     </ApplicationDefinition>
     <Compile Include="Beans\FileItem.cs" />
     <Compile Include="Beans\KaiosAppItem.cs" />
+    <Compile Include="Beans\KaiosStoneItem.cs" />
     <Compile Include="Helper\FileReceiver.cs" />
     <Compile Include="Helper\OutPutReveiver.cs" />
     <Compile Include="Helper\ProcessViewer.cs" />

@@ -22,6 +22,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ICSharpCode.SharpZipLib.Zip;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Nine_colored_deer_Sharp
 {
@@ -497,8 +499,34 @@ namespace Nine_colored_deer_Sharp
             }
             else if (tabs.SelectedIndex == 3)
             {
-                KaiSton.getKey();
-                var ret = KaiSton.Request("GET", "/v3.0/apps", "");
+                if (itemskaistonlist.ItemsSource != null) 
+                {
+                    return;
+                }
+                setLoading(true);
+                await Task.Run(() =>
+                {
+                    try{
+                         
+                        KaiSton.getKey();
+                        var ret = KaiSton.Request("GET", "/v3.0/apps", "");
+                        var apps = JObject.Parse(ret)["apps"].ToString();
+                        var appsdata = JsonConvert.DeserializeObject<List<KaiosStoneItem>>(apps);
+                        App.Current?.Dispatcher?.Invoke(() =>
+                        {
+                            itemskaistonlist.ItemsSource = appsdata;
+                        });
+                    }catch(Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);   
+                    }
+                    finally
+                    {
+
+                        setLoading(false);
+                    }
+                });
+        
             }
         }
 

@@ -2,6 +2,12 @@
 using Newtonsoft.Json.Linq;
 using System;
 using HawkNet;
+using static System.Net.Mime.MediaTypeNames;
+using System.Net;
+using System.Security.Policy;
+using System.Text;
+using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace Nine_colored_deer_Sharp.utils
 {
@@ -117,16 +123,43 @@ namespace Nine_colored_deer_Sharp.utils
                 //}
                 //ClientOptions options = new ClientOptions(credentials, new Instant().PlusTicks(DateTime.Now.Ticks), null, new Microsoft.FSharp.Core.FSharpOption<string>("application/json"), null, new Microsoft.FSharp.Core.FSharpOption<byte[]>(System.Text.Encoding.UTF8.GetBytes(data)), null, null, null, null);
 
-                //var auth = Logibit.Hawk.Client.header(new Uri(url), httpMethod, options);
-                HawkCredential hawkCredential = new HawkCredential();
-                hawkCredential.Key = jsontoken["mac_key"].ToString();
-                hawkCredential.Algorithm = "sha256";
-                hawkCredential.Id = jsontoken["kid"].ToString();
+                //var auth = Logibit.Hawk.Client.header(new Uri(url), httpMethod, options); 
+                 
+                string host = new Uri(url).Host;
+                Uri uri = new Uri(url);
+                DateTime? ts = null;
+                string nonce = null;
+                string payloadHash = null;
+                string type = null;
+                if (string.IsNullOrEmpty(nonce))
+                {
+                    nonce = Hawk.GetRandomString(6);
+                }
 
+                if (string.IsNullOrEmpty(type))
+                {
+                    type = "header";
+                }
+                //var auth = HawkNet.Hawk.GetAuthorizationHeader(new Uri(url).Host, method, new Uri(url), hawkCredential);
+                string text = ((int)Math.Floor(HawkNet.Hawk.ConvertToUnixTimestamp(ts.HasValue ? ts.Value : DateTime.UtcNow))).ToString();
+                
+                 
+                HMAC hMAC = null;
 
-                var auth = HawkNet.Hawk.GetAuthorizationHeader(new Uri(url).Host, method, new Uri(url), hawkCredential);
+                hMAC = new HMACSHA256();
 
-                httpClient.Request.AddExtraHeader("Authorization", "Hawk " + auth);
+                hMAC.Key = Convert.FromBase64String(jsontoken["mac_key"].ToString());
+                string text11 = ((host.IndexOf(':') > 0) ? host.Substring(0, host.IndexOf(':')) : host);
+                string text22 = "hawk.1." + type + "\n" + text + "\n" + nonce + "\n" + method.ToUpper() + "\n" + uri.PathAndQuery + "\n" + text11 + "\n" + uri.Port + "\n" + ((!string.IsNullOrEmpty(payloadHash)) ? payloadHash : "") + "\n" + "\n";
+                
+                string text33= Convert.ToBase64String(hMAC.ComputeHash(Encoding.UTF8.GetBytes( text22)));
+                 
+                string text3 = $"id=\"{jsontoken["kid"].ToString()}\", ts=\"{text}\", nonce=\"{nonce}\", mac=\"{text33}\"";
+                if (!string.IsNullOrEmpty(payloadHash))
+                {
+                    text3 += $", hash=\"{payloadHash}\"";
+                } 
+                httpClient.Request.AddExtraHeader("Authorization", "Hawk " + text3);
 
             }
             if (method == "POST")
@@ -138,7 +171,7 @@ namespace Nine_colored_deer_Sharp.utils
             else if (method == "GET")
             {
 
-                ret = httpClient.Get(url, "application/json").RawText;
+                ret = httpClient.Get(url).RawText;
 
             }
             return ret;

@@ -628,7 +628,27 @@
                 <Grid Background="White">
 
 
-
+                    <hc:ScrollViewer  Grid.Row="3">
+                        <ItemsControl Name="itemskaistonlist" Focusable="False" Margin="20 10 10 20">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="6">
+                                        
+                                    </UniformGrid>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Tag="{Binding}" Margin="20">
+                                        <Image Source="{Binding icon,IsAsync=True}" HorizontalAlignment="Center" Width="32" Height="32"></Image>
+                                        <TextBlock HorizontalAlignment="Center" Margin="0 5 0 0" Text="{Binding name}"></TextBlock>
+                                        <TextBlock HorizontalAlignment="Center" Margin="0 5 0 0" Text="{Binding version}"></TextBlock>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </hc:ScrollViewer>
+                    
                 </Grid>
             </hc:TabItem>
 
