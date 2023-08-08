@@ -12,16 +12,22 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Nine_colored_deer_Sharp.Beans;
+using System.Security.Policy;
+using Newtonsoft.Json;
+using System.Data;
 
 namespace Nine_colored_deer_Sharp.Helper
 {
     public class kaiosHelper
     {
+        private object locker = new object();
+
         Socket tcpClient;
 
         public byte[] withLen(string data)
         {
-            data = data.Length + ":" + data;
+            data = Encoding.UTF8.GetBytes(data).Length + ":" + data;
             return Encoding.UTF8.GetBytes(data);
         }
         string host;
@@ -199,189 +205,394 @@ namespace Nine_colored_deer_Sharp.Helper
 
         private void init()
         {
-
-            try
+            lock (locker)
             {
-                if (!AdbServer.Instance.GetStatus().IsRunning)
+                try
                 {
-                    AdbServer server = new AdbServer();
-                    StartServerResult result = server.StartServer(Directory.GetCurrentDirectory() + "//adb//adb.exe", false);
-                    if (result != StartServerResult.Started)
+                    if (!AdbServer.Instance.GetStatus().IsRunning)
                     {
+                        AdbServer server = new AdbServer();
+                        StartServerResult result = server.StartServer(Directory.GetCurrentDirectory() + "//adb//adb.exe", false);
+                        if (result != StartServerResult.Started)
+                        {
 
+                        }
                     }
+                    var adbclient = new AdbClient();
+                    var device = kaiosHelper.getAdbDevice();
+                    if (device != null)
+                    {
+                        try
+                        {
+                            adbclient.CreateForward(device, "tcp:6000", "localfilesystem:/data/local/debugger-socket", false);
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
+
+                    tcpClient = new Socket(SocketType.Stream, ProtocolType.IP);
+                    tcpClient.Connect(host, port);
+
+                    List<byte> bytes = new List<byte>();
+
+                    byte[] buffer = new byte[1] { 0 };
+
+                    while (buffer[0] != 58)
+                    {
+                        var tmp = tcpClient.Receive(buffer, 1, SocketFlags.None);
+                        if (tmp <= 0)
+                        {
+                            break;
+                        }
+                        if (buffer[0] != 58)
+                        {
+                            bytes.Add(buffer[0]);
+                        }
+                    }
+
+                    var size = int.Parse(Encoding.UTF8.GetString(bytes.ToArray()));
+
+                    bytes = new List<byte>();
+
+                    buffer = new byte[1024];
+
+                    while (bytes.Count < size)
+                    {
+                        var readcount = tcpClient.Receive(buffer, buffer.Length, SocketFlags.None);
+
+                        bytes.AddRange(buffer.Take(readcount).ToArray());
+                    }
+
+                    tcpClient.Send(withLen(listTabCmd));
+
+                    Thread.Sleep(100);
+
+                    bytes = new List<byte>();
+
+                    buffer = new byte[1];
+
+                    while (buffer[0] != 58)
+                    {
+                        var ret = tcpClient.Receive(buffer, 1, SocketFlags.None);
+                        if (ret <= 0)
+                        {
+                            break;
+                        }
+                        if (buffer[0] != 58)
+                        {
+                            bytes.Add(buffer[0]);
+                        }
+                    }
+
+                    size = int.Parse(Encoding.UTF8.GetString(bytes.ToArray()));
+
+                    buffer = new byte[size];
+
+                    tcpClient.Receive(buffer, size, SocketFlags.None);
+
+                    var jsondata = JObject.Parse(Encoding.UTF8.GetString(buffer));
+
+                    deviceActor = jsondata["deviceActor"]?.ToString();
+
+                    webappsActor = jsondata["webappsActor"]?.ToString();
+
                 }
-                var adbclient = new AdbClient();
-                var device = kaiosHelper.getAdbDevice();
-                if (device != null)
+                catch (Exception ex)
                 {
-                    try
-                    {
-                        adbclient.CreateForward(device, "tcp:6000", "localfilesystem:/data/local/debugger-socket", false);
-                    }
-                    catch (Exception ex)
-                    {
 
-                    }
                 }
-
-                tcpClient = new Socket(SocketType.Stream, ProtocolType.IP);
-                tcpClient.Connect(host, port);
-
-                List<byte> bytes = new List<byte>();
-
-                byte[] buffer = new byte[1] { 0 };
-
-                while (buffer[0] != 58)
-                {
-                    var tmp = tcpClient.Receive(buffer, 1, SocketFlags.None);
-                    if (tmp <= 0)
-                    {
-                        break;
-                    }
-                    if (buffer[0] != 58)
-                    {
-                        bytes.Add(buffer[0]);
-                    }
-                }
-
-                var size = int.Parse(Encoding.UTF8.GetString(bytes.ToArray()));
-
-                bytes = new List<byte>();
-
-                buffer = new byte[1024];
-
-                while (bytes.Count < size)
-                {
-                    var readcount = tcpClient.Receive(buffer, buffer.Length, SocketFlags.None);
-
-                    bytes.AddRange(buffer.Take(readcount).ToArray());
-                }
-
-                tcpClient.Send(withLen(listTabCmd));
-
-                Thread.Sleep(100);
-
-                bytes = new List<byte>();
-
-                buffer = new byte[1];
-
-                while (buffer[0] != 58)
-                {
-                    var ret = tcpClient.Receive(buffer, 1, SocketFlags.None);
-                    if (ret <= 0)
-                    {
-                        break;
-                    }
-                    if (buffer[0] != 58)
-                    {
-                        bytes.Add(buffer[0]);
-                    }
-                }
-
-                size = int.Parse(Encoding.UTF8.GetString(bytes.ToArray()));
-
-                buffer = new byte[size];
-
-                tcpClient.Receive(buffer, size, SocketFlags.None);
-
-                var jsondata = Encoding.UTF8.GetString(buffer);
-
-                deviceActor = JObject.Parse(jsondata)["deviceActor"].ToString();
-            }
-            catch (Exception ex)
-            {
-
             }
         }
         string deviceActor;
+        string webappsActor;
         string screenshotCmd = "{{\"type\":\"screenshotToDataURL\",\"to\":\"{0}\"}}";
         string listTabCmd = "{\"to\":\"root\",\"type\":\"listTabs\"}";
         string substring_cmd = "{{\"type\":\"substring\",\"start\":{0},\"end\":{1},\"to\":\"{2}\"}}";
 
+        List<KaiosAppItem> allapps = null;
 
-        public byte[] getImage()
+        public List<KaiosAppItem> getAllApps()
         {
             try
             {
-                string cmd = string.Format(screenshotCmd, deviceActor);
-                tcpClient.Send(withLen(cmd));
-
-
-                var bytes = new List<byte>();
-
-                var buffer = new byte[1];
-
-                while (buffer[0] != 58)
+                string ret = request("getAll");
+                if (string.IsNullOrWhiteSpace(ret))
                 {
-                    var ret = tcpClient.Receive(buffer, 1, SocketFlags.None);
-                    if (ret <= 0)
-                    {
-                        break;
-                    }
-                    if (buffer[0] != 58)
-                    {
-                        bytes.Add(buffer[0]);
-                    }
+                    return null;
                 }
-                int size = int.Parse(Encoding.UTF8.GetString(bytes.ToArray()));
-
-
-                buffer = new byte[size];
-
-                tcpClient.Receive(buffer, size, SocketFlags.None);
-
-                var jsondata = Encoding.UTF8.GetString(buffer);
-                var image = JObject.Parse(jsondata)["value"];
-
-                var image_len = int.Parse(image["length"].ToString());
-
-                var actor = image["actor"].ToString();
-
-                cmd = string.Format(substring_cmd, 0, image_len, actor);
-
-                tcpClient.Send(withLen(cmd));
-
-
-                bytes = new List<byte>();
-
-                buffer = new byte[1];
-
-                while (buffer[0] != 58)
-                {
-                    var ret = tcpClient.Receive(buffer, 1, SocketFlags.None);
-                    if (ret <= 0)
-                    {
-                        break;
-                    }
-                    if (buffer[0] != 58)
-                    {
-                        bytes.Add(buffer[0]);
-                    }
-                }
-                size = int.Parse(Encoding.UTF8.GetString(bytes.ToArray()));
-
-
-                bytes = new List<byte>();
-
-                buffer = new byte[1024 * 1024];
-
-                while (bytes.Count < size)
-                {
-                    var readcount = tcpClient.Receive(buffer, buffer.Length, SocketFlags.None);
-
-                    bytes.AddRange(buffer.Take(readcount).ToArray());
-                }
-
-                var buf = Encoding.UTF8.GetString(bytes.ToArray());
-
-                var image1 = JObject.Parse(buf)["substring"].ToString().Split(',')[1];
-                return Convert.FromBase64String(image1);
+                var apps = JObject.Parse(ret)["apps"].ToString();
+                var retdata = JsonConvert.DeserializeObject<List<KaiosAppItem>>(apps);
+                allapps = retdata;
+                return retdata;
             }
             catch (Exception ex)
             {
-                init();
+                Console.WriteLine(ex.Message);
+            }
+            return null;
+        }
+        public List<KaiosAppItem> getAllRunningApps()
+        {
+            try
+            {
+                string ret = request("listRunningApps");
+                if (string.IsNullOrWhiteSpace(ret))
+                {
+                    return null;
+                }
+                var apps = JObject.Parse(ret)["apps"].ToString();
+                var retdatastring = JsonConvert.DeserializeObject<List<string>>(apps);
+                var retdata = new List<KaiosAppItem>();
+                if (allapps != null)
+                {
+                    foreach (var item in retdatastring)
+                    {
+                        foreach (var app in allapps)
+                        {
+                            if (app.manifestURL == item)
+                            {
+                                retdata.Add(app);
+                                break;
+                            }
+                        }
+                    }
+                }
+                return retdata;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return null;
+        }
+
+
+
+        public bool closeApp(string manifestURL)
+        {
+            try
+            {
+                string ret = request("close", new Dictionary<string, string>() { { "manifestURL", manifestURL } });
+                if (string.IsNullOrWhiteSpace(ret))
+                {
+                    return false;
+                }
+                var apps = JObject.Parse(ret);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+        public bool launchApp(string manifestURL)
+        {
+            try
+            {
+                string ret = request("launch", new Dictionary<string, string>() { { "manifestURL", manifestURL } });
+                if (string.IsNullOrWhiteSpace(ret))
+                {
+                    return false;
+                }
+                var apps = JObject.Parse(ret);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
+        public bool uninstallApp(string manifestURL)
+        {
+            try
+            {
+                string ret = request("uninstall", new Dictionary<string, string>() { { "manifestURL", manifestURL } });
+                if (string.IsNullOrWhiteSpace(ret))
+                {
+                    return false;
+                }
+                var apps = JObject.Parse(ret);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
+        private string request(string data, Dictionary<string, string> extdata = null, string actor = "")
+        {
+            lock (locker)
+            {
+                try
+                {
+                    JObject json = JObject.Parse("{}");
+
+                    if (string.IsNullOrWhiteSpace(actor))
+                    {
+                        json["to"] = webappsActor;
+                    }
+                    else
+                    {
+                        json["to"] = actor;
+                    }
+                    json["type"] = data;
+                    if (extdata != null)
+                    {
+                        foreach (var keyvalue in extdata)
+                        {
+                            json[keyvalue.Key] = keyvalue.Value;
+                        }
+                    }
+
+                    var jsonstr = json.ToString(Newtonsoft.Json.Formatting.None);
+                    var datasend = withLen(jsonstr);
+                    tcpClient.Send(datasend);
+                    var bytes = new List<byte>();
+
+                    var buffer = new byte[1];
+                    int cnt = 0;
+                    while (buffer[0] != 58)
+                    {
+                        var ret = tcpClient.Receive(buffer, 1, SocketFlags.None);
+                        if (ret <= 0)
+                        {
+                            return "";
+                            //cnt++;
+                            ////Thread.Sleep(200);
+                            //if (cnt >= 10)
+                            //{
+                            //    break;
+                            //}
+                        }
+                        else
+                        {
+                            if (buffer[0] != 58)
+                            {
+                                bytes.Add(buffer[0]);
+                            }
+                        }
+                    }
+                    if (bytes.Count == 0 || bytes.All(p => p == 0))
+                    {
+                        return null;
+                    }
+                    int size = int.Parse(Encoding.UTF8.GetString(bytes.ToArray()));
+
+                    bytes = new List<byte>();
+
+                    buffer = new byte[1024 * 1024];
+
+                    while (bytes.Count < size)
+                    {
+                        var readcount = tcpClient.Receive(buffer, buffer.Length, SocketFlags.None);
+
+                        bytes.AddRange(buffer.Take(readcount).ToArray());
+                    }
+
+                    var buf = Encoding.UTF8.GetString(bytes.ToArray());
+                    return buf;
+                }
+                catch (Exception ex)
+                {
+                    //init();
+                    Console.WriteLine(ex.Message);
+                }
                 return null;
+            }
+        }
+
+        public byte[] getImage()
+        {
+            lock (locker)
+            {
+                try
+                {
+                    string cmd = string.Format(screenshotCmd, deviceActor);
+                    tcpClient.Send(withLen(cmd));
+
+
+                    var bytes = new List<byte>();
+
+                    var buffer = new byte[1];
+
+                    while (buffer[0] != 58)
+                    {
+                        var ret = tcpClient.Receive(buffer, 1, SocketFlags.None);
+                        if (ret <= 0)
+                        {
+                            break;
+                        }
+                        if (buffer[0] != 58)
+                        {
+                            bytes.Add(buffer[0]);
+                        }
+                    }
+                    int size = int.Parse(Encoding.UTF8.GetString(bytes.ToArray()));
+
+
+                    buffer = new byte[size];
+
+                    tcpClient.Receive(buffer, size, SocketFlags.None);
+
+                    var jsondata = Encoding.UTF8.GetString(buffer);
+                    var image = JObject.Parse(jsondata)["value"];
+
+                    var image_len = int.Parse(image["length"].ToString());
+
+                    var actor = image["actor"].ToString();
+
+                    cmd = string.Format(substring_cmd, 0, image_len, actor);
+
+                    tcpClient.Send(withLen(cmd));
+
+
+                    bytes = new List<byte>();
+
+                    buffer = new byte[1];
+
+                    while (buffer[0] != 58)
+                    {
+                        var ret = tcpClient.Receive(buffer, 1, SocketFlags.None);
+                        if (ret <= 0)
+                        {
+                            break;
+                        }
+                        if (buffer[0] != 58)
+                        {
+                            bytes.Add(buffer[0]);
+                        }
+                    }
+                    size = int.Parse(Encoding.UTF8.GetString(bytes.ToArray()));
+
+
+                    bytes = new List<byte>();
+
+                    buffer = new byte[1024 * 1024];
+
+                    while (bytes.Count < size)
+                    {
+                        var readcount = tcpClient.Receive(buffer, buffer.Length, SocketFlags.None);
+
+                        bytes.AddRange(buffer.Take(readcount).ToArray());
+                    }
+
+                    var buf = Encoding.UTF8.GetString(bytes.ToArray());
+
+                    var image1 = JObject.Parse(buf)["substring"].ToString().Split(',')[1];
+                    return Convert.FromBase64String(image1);
+                }
+                catch (Exception ex)
+                {
+                    init();
+                    return null;
+                }
             }
         }
 
@@ -433,5 +644,131 @@ namespace Nine_colored_deer_Sharp.Helper
             }
             return true;
         }
+
+        public bool installApp(string filename)
+        {
+            lock (locker)
+            {
+                try
+                {
+                    //获取uploadActor
+                    string ret = request("uploadPackage");
+                    if (string.IsNullOrWhiteSpace(ret))
+                    {
+                        return false;
+                    }
+
+                    var datajson = JObject.Parse(ret);
+                    var uploadActor = datajson["actor"].ToString();
+
+                    int chunksize = 20480;
+                    //var zipdataraw = File.ReadAllBytes(filename);
+                    var zipdata = File.ReadAllBytes(filename);
+                    ////上传数据
+                    //string ret2 = request("chunk", new Dictionary<string, object>() { { "chunk", zipdata } }, uploadActor);
+                    //if (string.IsNullOrWhiteSpace(ret2))
+                    //{
+                    //    return false;
+                    //}
+
+                    for (int i = 0; i < zipdata.Length; i += chunksize)
+                    {
+
+                        var datasend = "";
+                        var datanow = zipdata.Skip(i).Take(chunksize).ToArray();
+                        datasend = genMsg(datanow);
+                        //上传数据
+                        string ret2 = request("chunk", new Dictionary<string, string>() { { "chunk", datasend } }, uploadActor);
+                        if (string.IsNullOrWhiteSpace(ret2))
+                        {
+                            return false;
+                        }
+                    }
+
+                    //标记上传成功
+                    string ret3 = request("done", null, uploadActor);
+                    if (string.IsNullOrWhiteSpace(ret3))
+                    {
+                        return false;
+                    }
+
+                    //开始安装文件
+                    string ret4 = request("install", new Dictionary<string, string>() { { "upload", uploadActor } ,{ "appId", Guid.NewGuid().ToString() }
+            }, webappsActor);
+                    if (string.IsNullOrWhiteSpace(ret4))
+                    {
+                        return false;
+                    }
+
+                    var appid = JObject.Parse(ret4)["appId"].ToString();
+
+                    //删除文件
+                    string ret5 = request("remove", null, uploadActor);
+                    if (string.IsNullOrWhiteSpace(ret5))
+                    {
+                        return false;
+                    }
+                    var main = "app://" + appid + "/manifest.webapp";
+                    this.launchApp(main);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                return false;
+            }
+        }
+
+        private string genMsg(byte[] datanow)
+        {
+            var ret = new StringBuilder();
+
+            foreach (byte data in datanow)
+            {
+                switch (data)
+                {
+                    case 8:
+                        ret.Append('\b');
+                        break;
+                    case 9:
+                        ret.Append('\t');
+                        break;
+                    case 10:
+                        ret.Append('\n');
+                        break;
+                    case 12:
+                        ret.Append('\f');
+                        break;
+                    case 13:
+                        ret.Append('\r');
+                        break;
+                    case 34:
+                        ret.Append('\"');
+                        break;
+                    case 92:
+                        ret.Append('\\');
+                        break;
+                    default:
+                        if (data >= 32 && data <= 126)
+                        {
+                            ret.Append((char)data);
+                        }
+                        else
+                        {
+                            ret.Append((char)data);
+                            //ret.Append((char)(0));
+
+                            //ret.Append((char)(data >> 4));
+
+                            //ret.Append((char)(data & 0x0f));
+                        }
+                        break;
+                }
+            }
+
+            return ret.ToString();
+        }
+        //hextable  = "0123456789abcdef"
     }
 }

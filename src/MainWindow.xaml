@@ -394,11 +394,244 @@
                 </hc:TabItem.Header>
 
                 <Grid Background="White">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition Width="200"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="正在运行的应用：" VerticalAlignment="Center" FontSize="18" HorizontalAlignment="Left" Margin="20 0 0 0"></TextBlock>
+                        <hc:ScrollViewer  Grid.Row="1" MaxHeight="300">
+                            <ItemsControl Name="itemsrunningapps" Focusable="False" Margin="20 10 10 20">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel >
+
+                                        </StackPanel>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Name="grid_apps" Height="30" Tag="{Binding}" MouseLeftButtonDown="grid_fileinfo_MouseLeftButtonDown" MouseRightButtonDown="grid_fileinfo_MouseRightButtonDown">
+
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                                <ColumnDefinition Width="2*"></ColumnDefinition>
+                                                <ColumnDefinition Width="2*"></ColumnDefinition>
+
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+
+                                                <ColumnDefinition Width="40"></ColumnDefinition>
+
+                                                <ColumnDefinition Width="40"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0" VerticalAlignment="Center" ToolTip="{Binding manifest.name}"  TextTrimming="CharacterEllipsis" Text="{Binding manifest.name}"></TextBlock>
+
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" ToolTip="{Binding manifest.developer.name}" TextTrimming="CharacterEllipsis"  Text="{Binding manifest.developer.name}"></TextBlock>
+
+                                            <TextBlock Grid.Column="2" VerticalAlignment="Center" ToolTip="{Binding manifest.description}" TextTrimming="CharacterEllipsis"  Text="{Binding manifest.description}"></TextBlock>
+
+                                            <TextBlock Grid.Column="3" VerticalAlignment="Center" Text="{Binding manifest.version}"></TextBlock>
+
+                                            <TextBlock Grid.Column="4" VerticalAlignment="Center" Text="{Binding manifest.type}"></TextBlock>
+
+
+                                            <Button Grid.Column="5" Padding="0" Width="32" Height="32" Name="btn_closeapp" Click="btn_closeapp_Click" Tag="{Binding}">
+                                                <Button.Template>
+                                                    <ControlTemplate>
+                                                        <hc:SimplePanel Background="Transparent">
+                                                            <Path Stretch="Fill" Width="24" Height="24" Fill="#018beb">
+                                                                <Path.Data>
+                                                                    <GeometryGroup>
+                                                                        <Geometry>M897.6 183.5L183 898.1c-7.5 7.5-19.6 7.5-27.1 0l-29.5-29.5c-7.5-7.5-7.5-19.6 0-27.1L841 126.9c7.5-7.5 19.6-7.5 27.1 0l29.5 29.5c7.5 7.4 7.5 19.6 0 27.1z</Geometry>
+
+                                                                        <Geometry>M183 126.9l714.7 714.7c7.5 7.5 7.5 19.6 0 27.1l-29.5 29.5c-7.5 7.5-19.6 7.5-27.1 0L126.4 183.5c-7.5-7.5-7.5-19.6 0-27.1l29.5-29.5c7.4-7.5 19.6-7.5 27.1 0z</Geometry>
+                                                                    </GeometryGroup>
+                                                                </Path.Data>
+                                                            </Path>
+                                                        </hc:SimplePanel>
+
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+
+                                            <Button Grid.Column="6" Padding="0" Width="32" Height="32"  Name="btn_delete" Click="btn_delete_Click" Tag="{Binding}">
+                                                <Button.Template>
+                                                    <ControlTemplate>
+                                                        <hc:SimplePanel Background="Transparent">
+                                                            <Path Stretch="Fill"  Width="24" Height="24" Fill="#018beb">
+                                                                <Path.Data>
+                                                                    <GeometryGroup>
+                                                                        <Geometry>
+                                                                            M202.666667 256h-42.666667a32 32 0 0 1 0-64h704a32 32 0 0 1 0 64H266.666667v565.333333a53.333333 53.333333 0 0 0 53.333333 53.333334h384a53.333333 53.333333 0 0 0 53.333333-53.333334V352a32 32 0 0 1 64 0v469.333333c0 64.8-52.533333 117.333333-117.333333 117.333334H320c-64.8 0-117.333333-52.533333-117.333333-117.333334V256z m224-106.666667a32 32 0 0 1 0-64h170.666666a32 32 0 0 1 0 64H426.666667z m-32 288a32 32 0 0 1 64 0v256a32 32 0 0 1-64 0V437.333333z m170.666666 0a32 32 0 0 1 64 0v256a32 32 0 0 1-64 0V437.333333z
+                                                                        </Geometry>
+                                                                    </GeometryGroup>
+                                                                </Path.Data>
+                                                            </Path>
+                                                        </hc:SimplePanel>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+
+
+                                            <Grid.Style>
+                                                <Style TargetType="Grid">
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="Wheat" ></Setter>
+                                                        </Trigger>
+                                                        <Trigger Property="IsMouseOver" Value="False">
+                                                            <Setter Property="Background" Value="Transparent" ></Setter>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Grid.Style>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </hc:ScrollViewer>
+
+                        <TextBlock Text="已安装的应用：" Grid.Row="2" VerticalAlignment="Center" FontSize="18" HorizontalAlignment="Left" Margin="20 0 0 0"></TextBlock>
+                        <hc:ScrollViewer  Grid.Row="3">
+                            <ItemsControl Name="itemapps" Focusable="False" Margin="20 10 10 20">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel >
+
+                                        </StackPanel>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Name="grid_apps" Height="30" Tag="{Binding}" MouseLeftButtonDown="grid_fileinfo_MouseLeftButtonDown" MouseRightButtonDown="grid_fileinfo_MouseRightButtonDown">
+
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                                <ColumnDefinition Width="2*"></ColumnDefinition>
+                                                <ColumnDefinition Width="2*"></ColumnDefinition>
+
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+
+                                                <ColumnDefinition Width="40"></ColumnDefinition>
+
+                                                <ColumnDefinition Width="40"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0" VerticalAlignment="Center" ToolTip="{Binding manifest.name}"  TextTrimming="CharacterEllipsis" Text="{Binding manifest.name}"></TextBlock>
+
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" ToolTip="{Binding manifest.developer.name}" TextTrimming="CharacterEllipsis"  Text="{Binding manifest.developer.name}"></TextBlock>
+
+                                            <TextBlock Grid.Column="2" VerticalAlignment="Center" ToolTip="{Binding manifest.description}" TextTrimming="CharacterEllipsis"  Text="{Binding manifest.description}"></TextBlock>
+
+                                            <TextBlock Grid.Column="3" VerticalAlignment="Center" Text="{Binding manifest.version}"></TextBlock>
+
+                                            <TextBlock Grid.Column="4" VerticalAlignment="Center" Text="{Binding manifest.type}"></TextBlock>
+
+
+                                            <Button Grid.Column="5" Padding="0" Width="32" Height="32" Name="btn_start" Click="btn_start_Click" Tag="{Binding}">
+                                                <Button.Template>
+                                                    <ControlTemplate>
+                                                        <hc:SimplePanel Background="Transparent">
+                                                            <Path Stretch="Fill" Width="24" Height="24" Fill="#018beb">
+                                                                <Path.Data>
+                                                                    <GeometryGroup>
+                                                                        <Geometry>
+                                                                            M259.37 261.05L679.6 513.19 259.37 765.32V261.05m-92.23-162.9v830.07l691.72-415.03L167.14 98.15z
+                                                                        </Geometry>
+                                                                    </GeometryGroup>
+                                                                </Path.Data>
+                                                            </Path>
+                                                        </hc:SimplePanel>
+
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+
+                                            <Button Grid.Column="6" Padding="0" Width="32" Height="32"  Name="btn_delete" Click="btn_delete_Click" Tag="{Binding}">
+                                                <Button.Template>
+                                                    <ControlTemplate>
+                                                        <hc:SimplePanel Background="Transparent">
+                                                            <Path Stretch="Fill"  Width="24" Height="24" Fill="#018beb">
+                                                                <Path.Data>
+                                                                    <GeometryGroup>
+                                                                        <Geometry>
+                                                                            M202.666667 256h-42.666667a32 32 0 0 1 0-64h704a32 32 0 0 1 0 64H266.666667v565.333333a53.333333 53.333333 0 0 0 53.333333 53.333334h384a53.333333 53.333333 0 0 0 53.333333-53.333334V352a32 32 0 0 1 64 0v469.333333c0 64.8-52.533333 117.333333-117.333333 117.333334H320c-64.8 0-117.333333-52.533333-117.333333-117.333334V256z m224-106.666667a32 32 0 0 1 0-64h170.666666a32 32 0 0 1 0 64H426.666667z m-32 288a32 32 0 0 1 64 0v256a32 32 0 0 1-64 0V437.333333z m170.666666 0a32 32 0 0 1 64 0v256a32 32 0 0 1-64 0V437.333333z
+                                                                        </Geometry>
+                                                                    </GeometryGroup>
+                                                                </Path.Data>
+                                                            </Path>
+                                                        </hc:SimplePanel>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+
+
+                                            <Grid.Style>
+                                                <Style TargetType="Grid">
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="Wheat" ></Setter>
+                                                        </Trigger>
+                                                        <Trigger Property="IsMouseOver" Value="False">
+                                                            <Setter Property="Background" Value="Transparent" ></Setter>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Grid.Style>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </hc:ScrollViewer>
+                    </Grid>
+                    <StackPanel Orientation="Vertical" Grid.Column="1" Margin="0 20 0 0">
+
+                        <Button Name="btn_refreshapps" Margin="0 10 0 0"  Click="btn_refreshapps_Click" Focusable="False" Width="120">
+                            刷新列表
+                        </Button>
+
+                        <Button Name="btn_installapp" Margin="0 10 0 0"  Click="btn_installapp_Click" Focusable="False" Width="120">
+                            安装应用
+                        </Button>
+
+                    </StackPanel>
+                </Grid>
+            </hc:TabItem>
+
+            <hc:TabItem>
+                <hc:TabItem.Header>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Path Stretch="Fill" Width="20" Height="24" Fill="#018beb">
+                            <Path.Data>
+                                <GeometryGroup>
+                                    <Geometry>
+                                        M918.5 768l-21.4-577.2c-0.6-17.2-14.8-30.8-32-30.8H738.3c-6.8 0-12.8-4.3-15.1-10.8-11.2-31.7-29.4-60.2-52.8-83.6C629.9 25.1 573.9 0 512 0c-97.5 0-180.5 62.3-211.2 149.2-2.3 6.4-8.3 10.8-15.1 10.8H158.8c-17.2 0-31.3 13.6-32 30.8L105.5 768l-7 189.6c-1.3 36.3 27.7 66.4 64 66.4h699.2c36.3 0 65.3-30.1 64-66.4L918.5 768zM398.9 110.9c29-29 69-46.9 113.1-46.9 63.4 0 118.1 36.8 144.1 90.3 1.3 2.6-0.7 5.7-3.6 5.7H371.6c-2.9 0-4.9-3.1-3.6-5.7 7.8-16.2 18.3-30.9 30.9-43.4zM205.1 224H280c4.4 0 8 3.6 8 8v120c0 8.8 3.6 16.8 9.4 22.6 6 6 14.2 9.6 23.4 9.4 17.5-0.4 31.3-15.1 31.3-32.6V232c0-4.4 3.6-8 8-8h304c4.4 0 8 3.6 8 8v120c0 8.8 3.6 16.8 9.4 22.6 6 6 14.2 9.6 23.4 9.4 17.5-0.4 31.3-15.1 31.3-32.6V232c0-4.4 3.6-8 8-8h74.9c8.6 0 15.7 6.8 16 15.4l19.4 524.4c0.1 2.3-1.7 4.1-4 4.1H173.7c-2.3 0-4.1-1.9-4-4.1l19.4-524.4c0.3-8.6 7.4-15.4 16-15.4zM163 943.4l4-107.6c0.1-2.2 1.8-3.9 4-3.9h682c2.2 0 3.9 1.7 4 3.9l4 107.6c0.3 9.1-6.9 16.6-16 16.6H179c-9.1 0-16.3-7.5-16-16.6z
+                                    </Geometry>
+                                </GeometryGroup>
+                            </Path.Data>
+                        </Path>
+                        <TextBlock Margin="10 0 0 0" Text="应用商店" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                    </StackPanel>
+                </hc:TabItem.Header>
+
+                <Grid Background="White">
 
 
 
                 </Grid>
             </hc:TabItem>
+
         </hc:TabControl>
 
         <Grid Name="grid_info" Grid.RowSpan="2" Visibility="Collapsed">

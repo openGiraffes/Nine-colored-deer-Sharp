@@ -21,6 +21,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace Nine_colored_deer_Sharp
 {
@@ -76,15 +77,16 @@ namespace Nine_colored_deer_Sharp
         //}
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            setLoading(true);
             Task.Run(() =>
             {
                 if (kaiosHelper.checkAdbStatus() == false)
                 {
                     DialogUtil.info(grid_info, "adb服务启动失败，软件部分功能可能受限制！");
                 }
-
                 helper = new kaiosHelper();
                 refreshScreen();
+                setLoading(false);
             });
             Task.Factory.StartNew(() =>
             {
@@ -155,7 +157,6 @@ namespace Nine_colored_deer_Sharp
 
                 if (helper == null)
                 {
-                    helper = new kaiosHelper();
                     DialogUtil.info(grid_info, "截图失败");
                     return;
                 }
@@ -212,7 +213,6 @@ namespace Nine_colored_deer_Sharp
 
             if (helper == null)
             {
-                helper = new kaiosHelper();
                 if (showtips)
                 {
                     DialogUtil.info(grid_info, "刷新截图失败");
@@ -478,6 +478,21 @@ namespace Nine_colored_deer_Sharp
                 if (itemsfiles.ItemsSource == null)
                 {
                     itemsfiles.ItemsSource = await getRootFiles();
+                }
+            }
+            else if (tabs.SelectedIndex == 2)
+            {
+                if (itemapps.ItemsSource == null)
+                {
+                    await Task.Run(async () =>
+                    {
+                        while (helper == null)
+                        {
+                            Thread.Sleep(100);
+                        }
+                        await refreshApps();
+                    });
+
                 }
             }
         }
@@ -921,5 +936,179 @@ namespace Nine_colored_deer_Sharp
                 DialogUtil.info(grid_info, "操作失败：" + ex.Message);
             }
         }
+
+        private async void btn_delete_Click(object sender, RoutedEventArgs e)
+        {
+
+            try
+            {
+                var app = (sender as Button)?.Tag as KaiosAppItem;
+                if (app != null)
+                {
+                    if (MessageBox.Show("是否删除文件:" + app.name + "？", "删除确认", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
+                        helper.uninstallApp(app.manifestURL);
+                        await Task.Delay(500);
+                        await refreshApps();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                DialogUtil.info(grid_info, "操作失败：" + ex.Message);
+            }
+        }
+
+        private async void btn_start_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var app = (sender as Button)?.Tag as KaiosAppItem;
+                if (app != null)
+                {
+                    helper.launchApp(app.manifestURL);
+                    await Task.Delay(100);
+                    await refreshApps();
+                }
+            }
+            catch (Exception ex)
+            {
+                DialogUtil.info(grid_info, "操作失败：" + ex.Message);
+            }
+        }
+
+        private async Task refreshApps()
+        {
+            await Task.Run(() =>
+            {
+                try
+                {
+                    var apps = helper.getAllApps();
+                    App.Current?.Dispatcher?.Invoke(() =>
+                    {
+                        itemapps.ItemsSource = apps;
+                    });
+
+                    var runningapps = helper.getAllRunningApps();
+                    App.Current?.Dispatcher?.Invoke(() =>
+                    {
+                        itemsrunningapps.ItemsSource = runningapps;
+                    });
+                }
+                catch (Exception ex)
+                {
+                    DialogUtil.info(grid_info, "操作失败：" + ex.Message);
+                }
+            });
+        }
+
+        private async void btn_refreshapps_Click(object sender, RoutedEventArgs e)
+        {
+            setLoading(true);
+            await Task.Run(async () =>
+            {
+                await refreshApps();
+                Thread.Sleep(300);
+                setLoading(false);
+            });
+        }
+
+        private async void btn_closeapp_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var app = (sender as Button)?.Tag as KaiosAppItem;
+                if (app != null)
+                {
+                    helper.closeApp(app.manifestURL);
+                    await Task.Delay(1000);
+                    await refreshApps();
+                }
+            }
+            catch (Exception ex)
+            {
+                DialogUtil.info(grid_info, "操作失败：" + ex.Message);
+            }
+        }
+
+        private void btn_installapp_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "所有受支持的文件(*.webapp;*.zip)|*.webapp;*.zip|kaios程序描述文件(*.webapp)|*.webapp|zip包(*.zip)|*.zip|全部文件(*.*)|*.*"
+            };
+            var result = openFileDialog.ShowDialog();
+            if (result == true)
+            {
+                var filename = openFileDialog.FileName;
+                if (filename.EndsWith(".zip"))
+                {
+                    setLoading(true);
+                    Task.Run(() =>
+                    {
+                        try
+                        {
+
+                            ZipFile zipFile = new ZipFile(filename);
+                            var zipEntry = zipFile.FindEntry("manifest.webapp", true);
+                            if (zipEntry != -1)
+                            {
+                                zipFile.Close();
+                                helper.installApp(filename);
+                            }
+                            else
+                            {
+                                DialogUtil.info(grid_info, System.IO.Path.GetFileName(filename) + " 不是受支持的kaios安装包！");
+                            }
+
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
+                        finally
+                        {
+                            setLoading(false);
+                        }
+                    });
+
+                }
+                else if (filename.EndsWith(".webapp"))
+                {
+                    setLoading(true);
+                    Task.Run(async () =>
+                    {
+                        try
+                        {
+                            SharpZip.PackFiles(Directory.GetCurrentDirectory() + "\\tempapp.zip", System.IO.Path.GetDirectoryName(filename));
+                            var ret = helper.installApp(Directory.GetCurrentDirectory() + "\\tempapp.zip");
+                            if (ret)
+                            {
+                                DialogUtil.success(grid_info, System.IO.Path.GetFileName(filename) + " 安装成功！");
+                            }
+                            else
+                            {
+                                DialogUtil.info(grid_info, System.IO.Path.GetFileName(filename) + " 安装失败！");
+                            }
+                            await refreshApps();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
+                        finally
+                        {
+                            setLoading(false);
+                        }
+                    });
+
+                }
+                else
+                {
+                    DialogUtil.info(grid_info, System.IO.Path.GetFileName(filename) + " 不受支持！");
+                }
+            }
+        }
+
     }
 }
