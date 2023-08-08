@@ -50,6 +50,9 @@
     <Reference Include="HandyControl, Version=3.4.0.0, Culture=neutral, PublicKeyToken=45be8712787a1e5b, processorArchitecture=MSIL">
       <HintPath>packages\HandyControl.3.4.0\lib\net48\HandyControl.dll</HintPath>
     </Reference>
+    <Reference Include="HawkNet, Version=1.4.4.0, Culture=neutral, PublicKeyToken=840f8ba19d15c979, processorArchitecture=MSIL">
+      <HintPath>packages\HawkNet.1.4.4.0\lib\net45\HawkNet.dll</HintPath>
+    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib, Version=1.4.2.13, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>packages\SharpZipLib.1.4.2\lib\netstandard2.0\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
@@ -116,6 +119,7 @@
     </Compile>
     <Compile Include="utils\AnimationHelper.cs" />
     <Compile Include="utils\DialogUtil.cs" />
+    <Compile Include="utils\KaiSton.cs" />
     <Page Include="InputDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

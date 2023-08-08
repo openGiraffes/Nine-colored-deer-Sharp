@@ -495,6 +495,11 @@ namespace Nine_colored_deer_Sharp
 
                 }
             }
+            else if (tabs.SelectedIndex == 3)
+            {
+                KaiSton.getKey();
+                var ret = KaiSton.Request("GET", "/v3.0/apps", "");
+            }
         }
 
         private string NowPath = "";

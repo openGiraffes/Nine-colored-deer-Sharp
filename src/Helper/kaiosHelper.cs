@@ -368,8 +368,6 @@ namespace Nine_colored_deer_Sharp.Helper
             return null;
         }
 
-
-
         public bool closeApp(string manifestURL)
         {
             try
