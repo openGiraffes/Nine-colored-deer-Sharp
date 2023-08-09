@@ -233,6 +233,9 @@ namespace Nine_colored_deer_Sharp.Helper
                     }
 
                     tcpClient = new Socket(SocketType.Stream, ProtocolType.IP);
+                    tcpClient.ReceiveTimeout = 10000;
+                    tcpClient.SendTimeout = 10000;
+
                     tcpClient.Connect(host, port);
 
                     List<byte> bytes = new List<byte>();
@@ -499,7 +502,7 @@ namespace Nine_colored_deer_Sharp.Helper
                 }
                 catch (Exception ex)
                 {
-                    //init();
+                    init();
                     Console.WriteLine(ex.Message);
                 }
                 return null;

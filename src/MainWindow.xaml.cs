@@ -24,6 +24,7 @@ using System.Windows.Shapes;
 using ICSharpCode.SharpZipLib.Zip;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Net.Http.Headers;
 
 namespace Nine_colored_deer_Sharp
 {
@@ -499,15 +500,16 @@ namespace Nine_colored_deer_Sharp
             }
             else if (tabs.SelectedIndex == 3)
             {
-                if (itemskaistonlist.ItemsSource != null) 
+                if (itemskaistonlist.ItemsSource != null)
                 {
                     return;
                 }
                 setLoading(true);
                 await Task.Run(() =>
                 {
-                    try{
-                         
+                    try
+                    {
+
                         KaiSton.getKey();
                         var ret = KaiSton.Request("GET", "/v3.0/apps", "");
                         var apps = JObject.Parse(ret)["apps"].ToString();
@@ -516,9 +518,10 @@ namespace Nine_colored_deer_Sharp
                         {
                             itemskaistonlist.ItemsSource = appsdata;
                         });
-                    }catch(Exception ex)
+                    }
+                    catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);   
+                        Console.WriteLine(ex.Message);
                     }
                     finally
                     {
@@ -526,7 +529,7 @@ namespace Nine_colored_deer_Sharp
                         setLoading(false);
                     }
                 });
-        
+
             }
         }
 
@@ -1143,5 +1146,116 @@ namespace Nine_colored_deer_Sharp
             }
         }
 
+        private void StackPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var tag = (sender as StackPanel)?.Tag as KaiosStoneItem;
+            if (tag != null)
+            {
+                gridshopinfo.DataContext = tag;
+                gridshopinfo.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void btnclosegruishopinfo_Click(object sender, RoutedEventArgs e)
+        {
+            gridshopinfo.Visibility = Visibility.Collapsed;
+        }
+
+        private void btn_download_Click(object sender, RoutedEventArgs e)
+        {
+            var tag = (sender as Button)?.Tag as KaiosStoneItem;
+            if (tag != null)
+            {
+                var downlink = tag.package_path;
+                var downname = tag.name + "v" + tag.version + ".zip";
+                setLoading(true);
+                Task.Run(() =>
+                {
+                    var path = Directory.GetCurrentDirectory() + "\\" + "shopdown";
+                    try
+                    {
+                        try
+                        {
+                            if (Directory.Exists(path) == false)
+                            {
+                                Directory.CreateDirectory(path);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+
+                        var res = KaiSton.RequestDown("GET", downlink, "");
+                        File.WriteAllBytes(path + "\\" + downname, res);
+                        DialogUtil.success(grid_info, "下载成功！");
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    finally
+                    {
+                        setLoading(false);
+                    }
+
+                });
+
+            }
+        }
+
+        private void btn_install_Click(object sender, RoutedEventArgs e)
+        {
+            var tag = (sender as Button)?.Tag as KaiosStoneItem;
+            if (tag != null)
+            {
+                var downlink = tag.package_path;
+                var downname = tag.name + "v" + tag.version + ".zip";
+                setLoading(true);
+                Task.Run(() =>
+                {
+                    var path = Directory.GetCurrentDirectory() + "\\" + "shopdown";
+                    try
+                    {
+                        try
+                        {
+                            if (Directory.Exists(path) == false)
+                            {
+                                Directory.CreateDirectory(path);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                        if (File.Exists(path + "\\" + downname) == false)
+                        {
+                            var res = KaiSton.RequestDown("GET", downlink, "");
+                            File.WriteAllBytes(path + "\\" + downname, res);
+
+                        }
+                        var ret = helper.installApp(path + "\\" + downname);
+                        if (ret)
+                        {
+                            DialogUtil.success(grid_info, downname + " 安装成功！");
+                        }
+                        else
+                        {
+                            DialogUtil.info(grid_info, downname + " 安装失败！");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    finally
+                    {
+                        setLoading(false);
+                    }
+
+                });
+
+            }
+        }
     }
 }

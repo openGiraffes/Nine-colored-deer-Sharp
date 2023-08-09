@@ -629,26 +629,85 @@
 
 
                     <hc:ScrollViewer  Grid.Row="3">
+
                         <ItemsControl Name="itemskaistonlist" Focusable="False" Margin="20 10 10 20">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <UniformGrid Columns="6">
-                                        
+
                                     </UniformGrid>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <StackPanel Tag="{Binding}" Margin="20">
-                                        <Image Source="{Binding icon,IsAsync=True}" HorizontalAlignment="Center" Width="32" Height="32"></Image>
-                                        <TextBlock HorizontalAlignment="Center" Margin="0 5 0 0" Text="{Binding name}"></TextBlock>
-                                        <TextBlock HorizontalAlignment="Center" Margin="0 5 0 0" Text="{Binding version}"></TextBlock>
+                                    <StackPanel Tag="{Binding}" Margin="20" MouseLeftButtonDown="StackPanel_MouseLeftButtonDown">
+
+                                        <Image Source="{Binding icon,IsAsync=True}" Margin="0 10 0 0" HorizontalAlignment="Center" Width="32" Height="32"></Image>
+                                        <TextBlock HorizontalAlignment="Center" Margin="0 5 0 0" Text="{Binding name}" ToolTip="{Binding name}" TextTrimming="CharacterEllipsis"></TextBlock>
+                                        <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding version}"></TextBlock>
+
+                                        <StackPanel.Style>
+                                            <Style TargetType="StackPanel">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="Wheat" ></Setter>
+                                                    </Trigger>
+                                                    <Trigger Property="IsMouseOver" Value="False">
+                                                        <Setter Property="Background" Value="Transparent" ></Setter>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </StackPanel.Style>
+
                                     </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </hc:ScrollViewer>
-                    
+                    <Border Name="gridshopinfo" Background="White" Visibility="Collapsed" Width="400" Height="500" BorderThickness="1" BorderBrush="LightGray">
+                        <Grid Background="White">
+                            <Button Width="32" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0 10 10 0" 
+                                    Height="32" Name="btnclosegruishopinfo" Click="btnclosegruishopinfo_Click">
+                                <Button.Template>
+                                    <ControlTemplate>
+                                        <Grid Background="Transparent" Name="grid1">
+                                            <Path Width="32" Height="32" Stroke="Gray" Fill="Gray" Stretch="Fill">
+                                                <Path.Data>
+                                                    <GeometryGroup>
+                                                        <Geometry>M897.6 183.5L183 898.1c-7.5 7.5-19.6 7.5-27.1 0l-29.5-29.5c-7.5-7.5-7.5-19.6 0-27.1L841 126.9c7.5-7.5 19.6-7.5 27.1 0l29.5 29.5c7.5 7.4 7.5 19.6 0 27.1z</Geometry>
+
+                                                        <Geometry>M183 126.9l714.7 714.7c7.5 7.5 7.5 19.6 0 27.1l-29.5 29.5c-7.5 7.5-19.6 7.5-27.1 0L126.4 183.5c-7.5-7.5-7.5-19.6 0-27.1l29.5-29.5c7.4-7.5 19.6-7.5 27.1 0z</Geometry>
+                                                    </GeometryGroup>
+                                                </Path.Data>
+                                            </Path>
+                                        </Grid>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Opacity" TargetName="grid1" Value="0.8"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+
+                                </Button.Template>
+                            </Button> 
+                            
+                            <StackPanel>
+                                <Image Source="{Binding icon,IsAsync=True}" Margin="0 10 0 0" HorizontalAlignment="Center" Width="32" Height="32"></Image>
+                                <TextBlock HorizontalAlignment="Center" Margin="0 5 0 0" Text="{Binding name}" ToolTip="{Binding name}" TextTrimming="CharacterEllipsis"></TextBlock>
+                                <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding version}"></TextBlock>
+                                <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding type}"></TextBlock>
+                                <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding description}" TextWrapping="Wrap"></TextBlock>
+
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Button Content="下载"  Name="btn_download" Tag="{Binding}" Click="btn_download_Click"></Button>
+                                    <Button Content="安装"  Name="btn_install" Tag="{Binding}" Click="btn_install_Click" Margin="10 0 0 0 "></Button>
+
+                                </StackPanel>
+
+
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                 </Grid>
             </hc:TabItem>
 
