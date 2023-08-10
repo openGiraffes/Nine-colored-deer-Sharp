@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Nine_colored_deer_Sharp"
-        mc:Ignorable="d"
+        xmlns:local="clr-namespace:Nine_colored_deer_Sharp" xmlns:converterHelper="clr-namespace:Nine_colored_deer_Sharp.Converts"
+         mc:Ignorable="d"
          FontSize="16"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
@@ -14,6 +14,10 @@
     <WindowChrome.WindowChrome>
         <WindowChrome GlassFrameThickness="0" CaptionHeight="0" ResizeBorderThickness="0"/>
     </WindowChrome.WindowChrome>
+    <Window.Resources>
+        <converterHelper:MulitImageCacheConverter x:Key="gMulitImageCacheConverter">
+        </converterHelper:MulitImageCacheConverter>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="60px"></RowDefinition>
@@ -636,22 +640,44 @@
 
                 <Grid Background="White">
 
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="60"></RowDefinition>
+                        <RowDefinition></RowDefinition>
 
-                    <hc:ScrollViewer  Grid.Row="3">
+                        <RowDefinition Height="80"></RowDefinition>
+                    </Grid.RowDefinitions>
 
-                        <ItemsControl Name="itemskaistonlist" Focusable="False" Margin="20 10 10 20">
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Margin=" 20 0 0 0">
+                        <TextBox Name="txt_search" Width="250" Height="40">
+
+                        </TextBox>
+                        <Button Name="btn_search" IsDefault="True" Margin=" 20 0 0 0" Width="100" Click="btn_search_Click">搜索</Button>
+                        <Button Name="btn_refreshappslist" Margin=" 20 0 0 0" Width="100" Click="btn_refreshappslist_Click">刷新列表</Button>
+                    </StackPanel>
+                    <hc:ScrollViewer Name="sv_father" Grid.Row="1" >
+
+                        <ItemsControl Name="itemskaistonlist" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"  Focusable="False" Margin="20 10 10 20">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <UniformGrid Columns="4">
+                                    <UniformGrid Columns="5" Rows="4" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
 
                                     </UniformGrid>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <StackPanel Tag="{Binding}" Margin="20" MouseLeftButtonDown="StackPanel_MouseLeftButtonDown">
+                                    <StackPanel Tag="{Binding}" Margin="5" MouseLeftButtonDown="StackPanel_MouseLeftButtonDown" >
 
-                                        <Image Source="{Binding icon,IsAsync=True}" Margin="0 10 0 0" HorizontalAlignment="Center" Width="32" Height="32"></Image>
+                                        <Image  Margin="0 10 0 0"   HorizontalAlignment="Center" Width="32" Height="32">
+                                            <Image.Tag>
+                                                <MultiBinding Converter="{StaticResource gMulitImageCacheConverter}">
+                                                    <MultiBinding.Bindings>
+                                                        <Binding Path="icon" />
+                                                        <Binding RelativeSource="{RelativeSource Self}"/>
+                                                    </MultiBinding.Bindings>
+                                                </MultiBinding>
+                                            </Image.Tag>
+                                        </Image>
                                         <TextBlock HorizontalAlignment="Center" Margin="0 5 0 0" Text="{Binding name}" ToolTip="{Binding name}" TextTrimming="CharacterEllipsis"></TextBlock>
                                         <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding version}"></TextBlock>
 
@@ -673,75 +699,108 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </hc:ScrollViewer>
-                    <Border Name="gridshopinfo" Background="White" Visibility="Collapsed" Width="400" Height="500" BorderThickness="1" BorderBrush="LightGray">
-                        <Grid Background="White">
+
+                    <hc:Pagination MaxPageCount="1" PageUpdated="Pagination_PageUpdated" 
+                                   Name="hc_page"
+                                   Grid.Row="2" VerticalAlignment="Center"
+                                   HorizontalAlignment="Center" PageIndex="1" IsJumpEnabled="True"/>
+
+                    <Grid Name="gridshopinfo" Visibility="Collapsed"  Grid.RowSpan="3">
+                        <Grid.Background>
+                            <SolidColorBrush Color="Black" Opacity="0.2"></SolidColorBrush>
+                        </Grid.Background>
+
+                        <Border Background="White"  Width="400" Height="500" BorderThickness="1" BorderBrush="LightGray">
+                            <Grid Background="White">
 
 
-                            <hc:ScrollViewer>
-                                <StackPanel Margin="10">
-                                    <Image Source="{Binding icon,IsAsync=True}" Margin="0 10 0 0" HorizontalAlignment="Center" Width="32" Height="32"></Image>
-                                    <TextBlock HorizontalAlignment="Center" Margin="0 5 0 0" Text="{Binding name}" ToolTip="{Binding name}" TextTrimming="CharacterEllipsis"></TextBlock>
-                                    <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding version}"></TextBlock>
-                                    <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding type}"></TextBlock>
+                                <hc:ScrollViewer Name="hc_content" PreviewMouseWheel="hc_content_PreviewMouseWheel">
+                                    <StackPanel Margin="10">
+                                        <Image Margin="0 10 0 0"   HorizontalAlignment="Center" Width="32" Height="32">
+                                            <Image.Tag>
+                                                <MultiBinding Converter="{StaticResource gMulitImageCacheConverter}">
+                                                    <MultiBinding.Bindings>
+                                                        <Binding Path="icon" />
+                                                        <Binding RelativeSource="{RelativeSource Self}"/>
+                                                    </MultiBinding.Bindings>
+                                                </MultiBinding>
+                                            </Image.Tag>
+                                        </Image>
+                                        <TextBlock HorizontalAlignment="Center" Margin="0 5 0 0" Text="{Binding name}" ToolTip="{Binding name}" TextTrimming="CharacterEllipsis"></TextBlock>
+                                        <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding version}"></TextBlock>
+                                        <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding type}"></TextBlock>
 
-                                    <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" >
-                                        <Run Text="安装包大小"></Run>
+                                        <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" >
+                                        <Run Text="安装包大小："></Run>
                                         <Run Text="{Binding packaged_size_str,Mode=OneWay}"></Run>
-                                    </TextBlock>
+                                        </TextBlock>
 
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <Button Content="下载"  Name="btn_download" Tag="{Binding}" Click="btn_download_Click"></Button>
-                                        <Button Content="安装"  Name="btn_install" Tag="{Binding}" Click="btn_install_Click" Margin="10 0 0 0 "></Button>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Button Content="下载"  Name="btn_download" Tag="{Binding}" Click="btn_download_Click"></Button>
+                                            <Button Content="安装"  Name="btn_install" Tag="{Binding}" Click="btn_install_Click" Margin="10 0 0 0 "></Button>
+                                        </StackPanel>
+                                        <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" >
+                                        <Run Text="类别："></Run>
+                                        <Run Text="{Binding category_str,Mode=OneWay}"></Run>
+                                        </TextBlock>
+                                        <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding description}" TextWrapping="Wrap"></TextBlock>
+                                        <hc:ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto" >
+                                            <ItemsControl ItemsSource="{Binding screenshots}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal"></StackPanel>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <ItemContainerTemplate>
+                                                        <Border BorderBrush="LightGray" BorderThickness="1" Margin="10">
+                                                            <Image Width="180" Height="240" >
+                                                                <Image.Tag>
+                                                                    <MultiBinding Converter="{StaticResource gMulitImageCacheConverter}">
+                                                                        <MultiBinding.Bindings>
+                                                                            <Binding Path="Value" />
+                                                                            <Binding RelativeSource="{RelativeSource Self}"/>
+                                                                        </MultiBinding.Bindings>
+                                                                    </MultiBinding>
+                                                                </Image.Tag>
+                                                            </Image>
+                                                        </Border>
+                                                    </ItemContainerTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </hc:ScrollViewer>
+
+
                                     </StackPanel>
-
-                                    <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding description}" TextWrapping="Wrap"></TextBlock>
-                                    <hc:ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
-                                        <ItemsControl ItemsSource="{Binding screenshots}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <StackPanel Orientation="Horizontal"></StackPanel>
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <ItemContainerTemplate>
-                                                    <Border BorderBrush="LightGray" BorderThickness="1" Margin="10">
-                                                        <Image Width="180" Height="240" Source="{Binding Value,IsAsync=True}">
-                                                        </Image>
-                                                    </Border>
-                                                </ItemContainerTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </hc:ScrollViewer>
-
-
-                                </StackPanel>
-                            </hc:ScrollViewer>
-                            <Button Width="32" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0 10 10 0" 
+                                </hc:ScrollViewer>
+                                <Button Width="32" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0 10 10 0" 
                                     Height="32" Name="btnclosegruishopinfo" Click="btnclosegruishopinfo_Click">
-                                <Button.Template>
-                                    <ControlTemplate>
-                                        <Grid Background="Transparent" Name="grid1">
-                                            <Path Width="32" Height="32" Stroke="Gray" Fill="Gray" Stretch="Fill">
-                                                <Path.Data>
-                                                    <GeometryGroup>
-                                                        <Geometry>M897.6 183.5L183 898.1c-7.5 7.5-19.6 7.5-27.1 0l-29.5-29.5c-7.5-7.5-7.5-19.6 0-27.1L841 126.9c7.5-7.5 19.6-7.5 27.1 0l29.5 29.5c7.5 7.4 7.5 19.6 0 27.1z</Geometry>
+                                    <Button.Template>
+                                        <ControlTemplate>
+                                            <Grid Background="Transparent" Name="grid1">
+                                                <Path Width="32" Height="32" Stroke="Gray" Fill="Gray" Stretch="Fill">
+                                                    <Path.Data>
+                                                        <GeometryGroup>
+                                                            <Geometry>M897.6 183.5L183 898.1c-7.5 7.5-19.6 7.5-27.1 0l-29.5-29.5c-7.5-7.5-7.5-19.6 0-27.1L841 126.9c7.5-7.5 19.6-7.5 27.1 0l29.5 29.5c7.5 7.4 7.5 19.6 0 27.1z</Geometry>
 
-                                                        <Geometry>M183 126.9l714.7 714.7c7.5 7.5 7.5 19.6 0 27.1l-29.5 29.5c-7.5 7.5-19.6 7.5-27.1 0L126.4 183.5c-7.5-7.5-7.5-19.6 0-27.1l29.5-29.5c7.4-7.5 19.6-7.5 27.1 0z</Geometry>
-                                                    </GeometryGroup>
-                                                </Path.Data>
-                                            </Path>
-                                        </Grid>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Opacity" TargetName="grid1" Value="0.8"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
+                                                            <Geometry>M183 126.9l714.7 714.7c7.5 7.5 7.5 19.6 0 27.1l-29.5 29.5c-7.5 7.5-19.6 7.5-27.1 0L126.4 183.5c-7.5-7.5-7.5-19.6 0-27.1l29.5-29.5c7.4-7.5 19.6-7.5 27.1 0z</Geometry>
+                                                        </GeometryGroup>
+                                                    </Path.Data>
+                                                </Path>
+                                            </Grid>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Opacity" TargetName="grid1" Value="0.8"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
 
-                                </Button.Template>
-                            </Button>
-                        </Grid>
-                    </Border>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                    </Grid>
                 </Grid>
             </hc:TabItem>
 

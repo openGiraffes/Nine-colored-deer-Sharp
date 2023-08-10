@@ -101,6 +101,14 @@ namespace Nine_colored_deer_Sharp.Beans
                 return catlist;
             }
         }
+        [JsonIgnore]
+        public string category_str
+        {
+            get
+            {
+                return string.Join(",", category_list_str);
+            }
+        }
 
         [JsonIgnore]
         public string icon

@@ -25,6 +25,8 @@ using ICSharpCode.SharpZipLib.Zip;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
+using Nine_colored_deer_Sharp.Converts;
+using System.Windows.Markup;
 
 namespace Nine_colored_deer_Sharp
 {
@@ -38,6 +40,10 @@ namespace Nine_colored_deer_Sharp
         public MainWindow()
         {
             InitializeComponent();
+            int MYTHREAD_COUNT = 20;
+            ThreadPool.SetMinThreads(MYTHREAD_COUNT, MYTHREAD_COUNT);
+            ThreadPool.SetMaxThreads(MYTHREAD_COUNT * 5, MYTHREAD_COUNT * 5);
+
             grid_info.Visibility = Visibility.Visible;
             self = this;
             this.Loaded += MainWindow_Loaded;
@@ -80,6 +86,8 @@ namespace Nine_colored_deer_Sharp
         //}
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            MulitImageCacheConverter.CacheInit(System.IO.Path.Combine(Environment.CurrentDirectory, "Cache"), 3000, 3);
+
             setLoading(true);
             Task.Run(() =>
             {
@@ -512,12 +520,23 @@ namespace Nine_colored_deer_Sharp
                     {
 
                         KaiSton.getKey();
-                        var ret = KaiSton.Request("GET", "/v3.0/apps?software=KaiOS_2.5.4.1&locale=zh-CN", "");//&category=30&page_num=1&page_size=20
-                        var apps = JObject.Parse(ret)["apps"].ToString();
+
+                        string apps = "";
+                        if (File.Exists("apps.json") == false)
+                        {
+                            var ret = KaiSton.Request("GET", "/v3.0/apps?software=KaiOS_2.5.4.1&locale=zh-CN", "");//&category=30&page_num=1&page_size=20 
+                            apps = JObject.Parse(ret)["apps"].ToString(Formatting.None);
+                            File.WriteAllText("apps.json", apps);
+                        }
+                        else
+                        {
+                            apps = File.ReadAllText("apps.json");
+                        }
+
                         allapps = JsonConvert.DeserializeObject<List<KaiosStoneItem>>(apps);
                         App.Current?.Dispatcher?.Invoke(() =>
                         {
-                            itemskaistonlist.ItemsSource = allapps;
+                            itemskaistonlist.ItemsSource = SplitPages(allapps);
                         });
                     }
                     catch (Exception ex)
@@ -1216,16 +1235,40 @@ namespace Nine_colored_deer_Sharp
             try
             {
                 var tag = (sender as StackPanel)?.Tag as KaiosStoneItem;
+
                 if (tag != null)
                 {
-                    var url = tag.manifest_url;
+                    setLoading(true);
+                    Task.Run(() =>
+                    {
 
-                    var ret = KaiSton.Request("GET", url, "");
+                        try
+                        {
+                            var url = "https://api.kaiostech.com/apps/manifest/" + tag.id;
 
-                    var data = JsonConvert.DeserializeObject<KaistonDetailItem>(ret);
+                            var ret = KaiSton.Request("GET", url, "");
 
-                    gridshopinfo.DataContext = data;
-                    gridshopinfo.Visibility = Visibility.Visible;
+                            var data = JsonConvert.DeserializeObject<KaistonDetailItem>(ret);
+                            App.Current?.Dispatcher?.Invoke(() =>
+                            {
+                                gridshopinfo.DataContext = data;
+                                gridshopinfo.Visibility = Visibility.Visible;
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            App.Current?.Dispatcher?.Invoke(() =>
+                            {
+                                gridshopinfo.DataContext = tag;
+                                gridshopinfo.Visibility = Visibility.Visible;
+                            });
+                            // DialogUtil.info(grid_info, "操作失败：" + ex.Message);
+                        }
+                        finally
+                        {
+                            setLoading(false);
+                        }
+                    });
                 }
             }
             catch (Exception ex)
@@ -1341,6 +1384,95 @@ namespace Nine_colored_deer_Sharp
         {
             string filePath = Directory.GetCurrentDirectory() + "\\download\\";//文件（文件夹）路径
             System.Diagnostics.Process.Start(filePath);
+        }
+
+        private void btn_search_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txt_search.Text))
+            {
+                itemskaistonlist.ItemsSource = SplitPages(allapps);
+            }
+            else
+            {
+                var appsnew = allapps.Where(p => p.name.Contains(txt_search.Text.Trim())).ToList();
+                itemskaistonlist.ItemsSource = SplitPages(appsnew);
+            }
+        }
+
+        private List<KaiosStoneItem> nowShowApps = new List<KaiosStoneItem>();
+        private List<KaiosStoneItem> SplitPages(List<KaiosStoneItem> items)
+        {
+            nowShowApps = items;
+
+            hc_page.PageIndex = 1;
+            hc_page.MaxPageCount = Convert.ToInt32(Math.Ceiling(nowShowApps.Count / 20m));
+
+            List<KaiosStoneItem> ret = new List<KaiosStoneItem>();
+
+            ret = nowShowApps.Skip(20 * (hc_page.PageIndex - 1)).Take(20).ToList();
+
+            return ret;
+        }
+
+        private void btn_refreshappslist_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("刷新列表会重新下载应用列表，这将会耗费数十秒的时间！是否刷新", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                setLoading(true);
+                Task.Run(() =>
+                {
+                    try
+                    {
+
+                        KaiSton.getKey();
+                        string apps = "";
+                        var ret = KaiSton.Request("GET", "/v3.0/apps?software=KaiOS_2.5.4.1&locale=zh-CN", "");//&category=30&page_num=1&page_size=20 
+                        apps = JObject.Parse(ret)["apps"].ToString(Formatting.None);
+                        File.WriteAllText("apps.json", apps);
+
+                        allapps = JsonConvert.DeserializeObject<List<KaiosStoneItem>>(apps);
+                        App.Current?.Dispatcher?.Invoke(() =>
+                        {
+                            itemskaistonlist.ItemsSource = SplitPages(allapps);
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                    finally
+                    {
+
+                        setLoading(false);
+                    }
+                });
+            }
+        }
+
+        private void hc_content_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta > 0)
+            {
+                //向上滚动
+                var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta);
+                eventArg.RoutedEvent = System.Windows.UIElement.MouseWheelEvent;
+                eventArg.Source = sender;
+                hc_content?.RaiseEvent(eventArg);
+            }
+            else
+            {
+                //向下滚动
+                var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta);
+                eventArg.RoutedEvent = System.Windows.UIElement.MouseWheelEvent;
+                eventArg.Source = sender;
+                hc_content?.RaiseEvent(eventArg);
+            }
+        }
+
+        private void Pagination_PageUpdated(object sender, HandyControl.Data.FunctionEventArgs<int> e)
+        {
+            var ret = nowShowApps.Skip(20 * (hc_page.PageIndex - 1)).Take(20).ToList();
+            itemskaistonlist.ItemsSource = ret;
         }
     }
 }

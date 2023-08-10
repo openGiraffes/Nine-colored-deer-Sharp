@@ -114,8 +114,9 @@ namespace Nine_colored_deer_Sharp.utils
                 url = jsonSetting["api"]["server"]["url"].ToString() + path;
 
             }
-            httpClient.Request.AddExtraHeader("Kai-API-Version", jsonSetting["api"]["ver"].ToString());
+            httpClient.Request.Timeout = 30000;
 
+            httpClient.Request.AddExtraHeader("Kai-API-Version", jsonSetting["api"]["ver"].ToString());
 
             var reqinfo = "ct=\"wifi\", rt=\"auto\", utc=\"" + GetTimeStamp() + "\", utc_off=\"1\", " + "mcc=\"" + jsonSetting["dev"]["mcc"].ToString() + "\", " + "mnc=\"" + jsonSetting["dev"]["mnc"].ToString() + "\", " + "net_mcc=\"null\", " + "net_mnc=\"null\"";
 
