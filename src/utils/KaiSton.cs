@@ -87,9 +87,17 @@ namespace Nine_colored_deer_Sharp.utils
             //path = "/v3.0/applications/" + jsonSetting["api"]["app"]["id"].ToString() + "/tokens";
 
             //httpClient.Request.AddExtraHeader("Authorization", "Key " + authkey);
+            string url = "";
+            if(path.StartsWith("http://") || path.StartsWith("https://") )
+            {
+                url = jsonSetting["api"]["server"]["url"].ToString() +  path;
 
-            string url = jsonSetting["api"]["server"]["url"].ToString() + path;
+            }
+            else
+            {
+                url = jsonSetting["api"]["server"]["url"].ToString() + path;
 
+            } 
             httpClient.Request.AddExtraHeader("Kai-API-Version", jsonSetting["api"]["ver"].ToString());
 
 

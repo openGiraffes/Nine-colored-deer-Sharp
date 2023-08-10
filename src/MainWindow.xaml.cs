@@ -401,6 +401,7 @@ namespace Nine_colored_deer_Sharp
                 return;
             }
 
+
             var key = KeyCodeList[keycode].PadLeft(4, '0');
 
             client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0001 " + key + " 00000001", null);
@@ -511,7 +512,7 @@ namespace Nine_colored_deer_Sharp
                     {
 
                         KaiSton.getKey();
-                        var ret = KaiSton.Request("GET", "/v3.0/apps", "");
+                        var ret = KaiSton.Request("GET", "/v3.0/apps?software=KaiOS_2.5.4.1&locale=zh-CN&category=30&page_num=1&page_size=20", "");
                         var apps = JObject.Parse(ret)["apps"].ToString();
                         var appsdata = JsonConvert.DeserializeObject<List<KaiosStoneItem>>(apps);
                         App.Current?.Dispatcher?.Invoke(() =>
