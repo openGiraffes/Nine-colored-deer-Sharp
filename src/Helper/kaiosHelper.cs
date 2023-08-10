@@ -16,6 +16,7 @@ using Nine_colored_deer_Sharp.Beans;
 using System.Security.Policy;
 using Newtonsoft.Json;
 using System.Data;
+using System.Windows.Shapes;
 
 namespace Nine_colored_deer_Sharp.Helper
 {
@@ -599,6 +600,10 @@ namespace Nine_colored_deer_Sharp.Helper
 
         public static void DownloadFile(string remotefile, string localpath, IProgress<int> process)
         {
+            if (File.Exists(localpath))
+            {
+                File.Delete(localpath);
+            }
             AdbClient client = getAdbClient();
             var device = getAdbDevice();
             using (SyncService service = new SyncService(new AdbSocket(client.EndPoint), device))

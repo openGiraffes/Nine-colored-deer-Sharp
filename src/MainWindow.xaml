@@ -261,11 +261,13 @@
                                 <ColumnDefinition Width="*"></ColumnDefinition>
                                 <ColumnDefinition Width="*"></ColumnDefinition>
                                 <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="名称"></TextBlock>
                             <TextBlock Grid.Column="1"  Text="是否是目录"></TextBlock>
                             <TextBlock Grid.Column="2"  Text="是否是链接"></TextBlock>
                             <TextBlock Grid.Column="3" Text="大小"></TextBlock>
+                            <TextBlock Grid.Column="4" Text="权限"></TextBlock>
                         </Grid>
                         <hc:ScrollViewer  Grid.Row="1">
                             <ItemsControl Name="itemsfiles" Focusable="False" Margin="20 10 10 20">
@@ -284,11 +286,13 @@
                                                     <MenuItem Header="删除文件" Click="MenuItem_Click"></MenuItem>
                                                     <MenuItem Header="下载文件" Click="MenuItem_Click"></MenuItem>
                                                     <MenuItem Header="重命名" Click="MenuItem_Click"></MenuItem>
+                                                    <MenuItem Header="修改权限" Click="MenuItem_Click"></MenuItem>
                                                     <MenuItem Header="刷新列表" Click="MenuItem_Click"></MenuItem>
                                                 </ContextMenu>
                                             </Grid.ContextMenu>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="2*"></ColumnDefinition>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
                                                 <ColumnDefinition Width="*"></ColumnDefinition>
                                                 <ColumnDefinition Width="*"></ColumnDefinition>
                                                 <ColumnDefinition Width="*"></ColumnDefinition>
@@ -320,6 +324,7 @@
                                             <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding isDirectory}"></TextBlock>
                                             <TextBlock Grid.Column="2"  VerticalAlignment="Center" Text="{Binding isLink}"></TextBlock>
                                             <TextBlock Grid.Column="3" VerticalAlignment="Center"  Text="{Binding size}"></TextBlock>
+                                            <TextBlock Grid.Column="4"  VerticalAlignment="Center" Text="{Binding xr}"></TextBlock>
                                             <Grid.Style>
                                                 <Style TargetType="Grid">
                                                     <Style.Triggers>
@@ -371,6 +376,10 @@
 
                         <Button Name="btn_newDir" Margin="0 10 0 0"  Click="btn_newDir_Click" Focusable="False" Width="120">
                             新建文件夹
+                        </Button>
+
+                        <Button Name="btnOpenlocaldir" Margin="0 10 0 0"  Click="btnOpenlocaldir_Click" Focusable="False" Width="120">
+                            打开本地下载目录
                         </Button>
 
                     </StackPanel>
@@ -633,7 +642,7 @@
                         <ItemsControl Name="itemskaistonlist" Focusable="False" Margin="20 10 10 20">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <UniformGrid Columns="6">
+                                    <UniformGrid Columns="4">
 
                                     </UniformGrid>
                                 </ItemsPanelTemplate>
@@ -666,6 +675,47 @@
                     </hc:ScrollViewer>
                     <Border Name="gridshopinfo" Background="White" Visibility="Collapsed" Width="400" Height="500" BorderThickness="1" BorderBrush="LightGray">
                         <Grid Background="White">
+
+
+                            <hc:ScrollViewer>
+                                <StackPanel Margin="10">
+                                    <Image Source="{Binding icon,IsAsync=True}" Margin="0 10 0 0" HorizontalAlignment="Center" Width="32" Height="32"></Image>
+                                    <TextBlock HorizontalAlignment="Center" Margin="0 5 0 0" Text="{Binding name}" ToolTip="{Binding name}" TextTrimming="CharacterEllipsis"></TextBlock>
+                                    <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding version}"></TextBlock>
+                                    <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding type}"></TextBlock>
+
+                                    <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" >
+                                        <Run Text="安装包大小"></Run>
+                                        <Run Text="{Binding packaged_size_str,Mode=OneWay}"></Run>
+                                    </TextBlock>
+
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Button Content="下载"  Name="btn_download" Tag="{Binding}" Click="btn_download_Click"></Button>
+                                        <Button Content="安装"  Name="btn_install" Tag="{Binding}" Click="btn_install_Click" Margin="10 0 0 0 "></Button>
+                                    </StackPanel>
+
+                                    <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding description}" TextWrapping="Wrap"></TextBlock>
+                                    <hc:ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+                                        <ItemsControl ItemsSource="{Binding screenshots}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal"></StackPanel>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <ItemContainerTemplate>
+                                                    <Border BorderBrush="LightGray" BorderThickness="1" Margin="10">
+                                                        <Image Width="180" Height="240" Source="{Binding Value,IsAsync=True}">
+                                                        </Image>
+                                                    </Border>
+                                                </ItemContainerTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </hc:ScrollViewer>
+
+
+                                </StackPanel>
+                            </hc:ScrollViewer>
                             <Button Width="32" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0 10 10 0" 
                                     Height="32" Name="btnclosegruishopinfo" Click="btnclosegruishopinfo_Click">
                                 <Button.Template>
@@ -689,23 +739,7 @@
                                     </ControlTemplate>
 
                                 </Button.Template>
-                            </Button> 
-                            
-                            <StackPanel>
-                                <Image Source="{Binding icon,IsAsync=True}" Margin="0 10 0 0" HorizontalAlignment="Center" Width="32" Height="32"></Image>
-                                <TextBlock HorizontalAlignment="Center" Margin="0 5 0 0" Text="{Binding name}" ToolTip="{Binding name}" TextTrimming="CharacterEllipsis"></TextBlock>
-                                <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding version}"></TextBlock>
-                                <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding type}"></TextBlock>
-                                <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" Text="{Binding description}" TextWrapping="Wrap"></TextBlock>
-
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Button Content="下载"  Name="btn_download" Tag="{Binding}" Click="btn_download_Click"></Button>
-                                    <Button Content="安装"  Name="btn_install" Tag="{Binding}" Click="btn_install_Click" Margin="10 0 0 0 "></Button>
-
-                                </StackPanel>
-
-
-                            </StackPanel>
+                            </Button>
                         </Grid>
                     </Border>
                 </Grid>

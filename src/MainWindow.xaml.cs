@@ -474,7 +474,7 @@ namespace Nine_colored_deer_Sharp
             var ischeck = ckb_autorefresh.IsChecked == true;
             autorefresh = ischeck;
         }
-
+        List<KaiosStoneItem> allapps { get; set; }
         private async void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (tabs.SelectedIndex == 1)
@@ -512,12 +512,12 @@ namespace Nine_colored_deer_Sharp
                     {
 
                         KaiSton.getKey();
-                        var ret = KaiSton.Request("GET", "/v3.0/apps?software=KaiOS_2.5.4.1&locale=zh-CN&category=30&page_num=1&page_size=20", "");
+                        var ret = KaiSton.Request("GET", "/v3.0/apps?software=KaiOS_2.5.4.1&locale=zh-CN", "");//&category=30&page_num=1&page_size=20
                         var apps = JObject.Parse(ret)["apps"].ToString();
-                        var appsdata = JsonConvert.DeserializeObject<List<KaiosStoneItem>>(apps);
+                        allapps = JsonConvert.DeserializeObject<List<KaiosStoneItem>>(apps);
                         App.Current?.Dispatcher?.Invoke(() =>
                         {
-                            itemskaistonlist.ItemsSource = appsdata;
+                            itemskaistonlist.ItemsSource = allapps;
                         });
                     }
                     catch (Exception ex)
@@ -939,6 +939,41 @@ namespace Nine_colored_deer_Sharp
                                     DialogUtil.info(grid_info, "无法获取到当前设备状态");
                                 }
                             }
+                            else if (header == "修改权限")
+                            {
+                                var device = kaiosHelper.getAdbDevice();
+                                if (device != null)
+                                {
+                                    var oldqx = "";
+                                    oldqx = tag.xr;
+                                    oldqx = getNumberXR(oldqx);
+
+                                    InputDialog inputDialog = new InputDialog(oldqx);
+                                    inputDialog.Owner = this;
+                                    inputDialog.ShowDialog();
+
+                                    if (inputDialog.DialogResult == true)
+                                    {
+                                        var oldname = "";
+                                        if (tag.parent.EndsWith("/"))
+                                        {
+                                            oldname = tag.parent + tag.name;
+                                        }
+                                        else
+                                        {
+                                            oldname = tag.parent + "/" + tag.name;
+                                        }
+                                        var client = kaiosHelper.getAdbClient();
+                                        client.ExecuteShellCommand(device, "chmod " + inputDialog.value + " \"" + oldname + "\"", null);
+                                        DialogUtil.success(grid_info, "权限修改完毕！");
+                                    }
+                                    refreshFileList();
+                                }
+                                else
+                                {
+                                    DialogUtil.info(grid_info, "无法获取到当前设备状态");
+                                }
+                            }
                         }
                     }
                 }
@@ -946,6 +981,35 @@ namespace Nine_colored_deer_Sharp
             catch (Exception ex)
             {
                 DialogUtil.info(grid_info, "操作失败：" + ex.Message);
+            }
+        }
+
+        static Dictionary<string, int> QX = new Dictionary<string, int>()
+        {
+            { "r",4},
+            { "w",2},
+            { "x",1},
+            { "-",0},
+        };
+        private string getNumberXR(string xr)
+        {
+            try
+            {
+                char[] data = xr.ToCharArray();
+                var qx = "";
+                for (int i = 1; i < data.Length; i += 3)
+                {
+                    string q1 = data[i].ToString();
+                    string q2 = data[i + 1].ToString();
+                    string q3 = data[i + 2].ToString();
+                    int nowqx = QX[q1] + QX[q2] + QX[q3];
+                    qx = qx + nowqx.ToString();
+                }
+                return qx;
+            }
+            catch (Exception ex)
+            {
+                return "777";
             }
         }
 
@@ -1149,11 +1213,25 @@ namespace Nine_colored_deer_Sharp
 
         private void StackPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var tag = (sender as StackPanel)?.Tag as KaiosStoneItem;
-            if (tag != null)
+            try
             {
-                gridshopinfo.DataContext = tag;
-                gridshopinfo.Visibility = Visibility.Visible;
+                var tag = (sender as StackPanel)?.Tag as KaiosStoneItem;
+                if (tag != null)
+                {
+                    var url = tag.manifest_url;
+
+                    var ret = KaiSton.Request("GET", url, "");
+
+                    var data = JsonConvert.DeserializeObject<KaistonDetailItem>(ret);
+
+                    gridshopinfo.DataContext = data;
+                    gridshopinfo.Visibility = Visibility.Visible;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                DialogUtil.info(grid_info, "操作失败：" + ex.Message);
             }
         }
 
@@ -1257,6 +1335,12 @@ namespace Nine_colored_deer_Sharp
                 });
 
             }
+        }
+
+        private void btnOpenlocaldir_Click(object sender, RoutedEventArgs e)
+        {
+            string filePath = Directory.GetCurrentDirectory() + "\\download\\";//文件（文件夹）路径
+            System.Diagnostics.Process.Start(filePath);
         }
     }
 }

@@ -65,6 +65,22 @@ namespace Nine_colored_deer_Sharp.utils
 
         }
 
+        /// <summary>
+        /// 格式化
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static string FormatBytes(long bytes)
+        {
+            string[] Suffix = { "Byte", "KB", "MB", "GB", "TB" };
+            int i = 0;
+            double dblSByte = bytes;
+            if (bytes > 1024)
+                for (i = 0; (bytes / 1024) > 0; i++, bytes /= 1024)
+                    dblSByte = bytes / 1024.0;
+            return String.Format("{0:0.##}{1}", dblSByte, Suffix[i]);
+        }
+
         public static string Request(string method, string path, string data)
         {
             if (jsonSetting == null)
@@ -88,16 +104,16 @@ namespace Nine_colored_deer_Sharp.utils
 
             //httpClient.Request.AddExtraHeader("Authorization", "Key " + authkey);
             string url = "";
-            if(path.StartsWith("http://") || path.StartsWith("https://") )
+            if (path.StartsWith("http://") || path.StartsWith("https://"))
             {
-                url = jsonSetting["api"]["server"]["url"].ToString() +  path;
+                url = path;
 
             }
             else
             {
                 url = jsonSetting["api"]["server"]["url"].ToString() + path;
 
-            } 
+            }
             httpClient.Request.AddExtraHeader("Kai-API-Version", jsonSetting["api"]["ver"].ToString());
 
 

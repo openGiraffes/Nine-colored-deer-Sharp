@@ -10,6 +10,8 @@ namespace Nine_colored_deer_Sharp.Beans
     {
         public string detail { get; set; }
 
+        public string xr { get; set; }
+
         public string name { get; set; }
 
         public string parent { get; set; }

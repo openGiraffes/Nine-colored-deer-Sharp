@@ -48,6 +48,7 @@ namespace Nine_colored_deer_Sharp.Helper
                     fileItem2.isDirectory = false;
                     fileItem2.parent = null;
                     fileItem2.detail = line;
+                    fileItem2.xr = line.Split(' ')[0];
                     fileItem2.size = "";
                     RealFileList.Add(fileItem2);
                     return;
@@ -65,7 +66,7 @@ namespace Nine_colored_deer_Sharp.Helper
                     fileItem.isDirectory = true;
                     fileItem.parent = null;
                     fileItem.detail = line;
-
+                    fileItem.xr = info[0];
                     fileItem.size = null;
                     PathList.Add(fileItem);
                 }
@@ -77,6 +78,7 @@ namespace Nine_colored_deer_Sharp.Helper
                     fileItem.isDirectory = false;
                     fileItem.parent = null;
                     fileItem.size = null;
+                    fileItem.xr = info[0];
                     fileItem.detail = line;
                     LinkList.Add(fileItem);
                 }
@@ -88,6 +90,7 @@ namespace Nine_colored_deer_Sharp.Helper
                     fileItem.isDirectory = false;
                     fileItem.parent = null;
                     fileItem.detail = line;
+                    fileItem.xr = info[0];
                     fileItem.size = info[3];
                     RealFileList.Add(fileItem);
                 }

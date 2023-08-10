@@ -41,6 +41,7 @@ namespace Nine_colored_deer_Sharp.utils
                 border.CornerRadius = new CornerRadius(5);
                 border.BorderBrush = new SolidColorBrush(Colors.LightGray); ;
                 border.Background = new SolidColorBrush(Colors.White);
+                border.MaxWidth = 400;
                 //border.Height = 50;
                 border.BorderThickness = new Thickness(1, 1, 1, 1);
                 //border.BitmapEffect = new DropShadowBitmapEffect() { Softness = 0.8, Opacity = 0.8, ShadowDepth = 5, Direction = 300 };
@@ -52,8 +53,10 @@ namespace Nine_colored_deer_Sharp.utils
                 {
                     Foreground = new SolidColorBrush(Colors.Gray),
                     VerticalAlignment = VerticalAlignment.Center,
+                    TextWrapping = TextWrapping.Wrap,
                     FontSize = 20,
-                    Text = msg
+                    Text = msg,
+                    MaxWidth = 350
                 };
                 var url = new Uri("pack://application:,,,/images/success.png", UriKind.RelativeOrAbsolute);
                 var stream = Application.GetResourceStream(url).Stream;
@@ -143,13 +146,16 @@ namespace Nine_colored_deer_Sharp.utils
                 border.HorizontalAlignment = HorizontalAlignment.Center;
                 border.Margin = new Thickness(0, 0, 0, marginBottom);
                 border.CornerRadius = new CornerRadius(5);
+                border.MaxWidth = 400;
                 //border.Height = 50;
                 TextBlock textBlock = new TextBlock()
                 {
                     Foreground = new SolidColorBrush(Colors.White),
                     VerticalAlignment = VerticalAlignment.Center,
+                    TextWrapping = TextWrapping.Wrap,
                     FontSize = 20,
-                    Text = msg
+                    Text = msg,
+                    MaxWidth=350
                 };
 
                 border.Child = textBlock;
