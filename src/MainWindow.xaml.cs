@@ -31,6 +31,7 @@ using EasyHttp.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Net;
 
 namespace Nine_colored_deer_Sharp
 {
@@ -44,6 +45,7 @@ namespace Nine_colored_deer_Sharp
         public MainWindow()
         {
             InitializeComponent();
+            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls | SecurityProtocolType.Ssl3;
             int MYTHREAD_COUNT = 20;
             ThreadPool.SetMinThreads(MYTHREAD_COUNT, MYTHREAD_COUNT);
             ThreadPool.SetMaxThreads(MYTHREAD_COUNT * 5, MYTHREAD_COUNT * 5);
@@ -1474,7 +1476,7 @@ namespace Nine_colored_deer_Sharp
                     }
                     catch (Exception ex)
                     {
-
+                        DialogUtil.info(grid_info, "下载失败:" + ex.Message);
                     }
                     finally
                     {
@@ -1735,6 +1737,21 @@ namespace Nine_colored_deer_Sharp
         private void btn_getupdate_Click(object sender, RoutedEventArgs e)
         {
             Process.Start(new ProcessStartInfo("https://www.dospy.wang/thread-20208-1-1.html"));
+        }
+
+        private void btn_opendownload_Click(object sender, RoutedEventArgs e)
+        {
+
+            string filePath = Directory.GetCurrentDirectory() + "\\shopdown\\";
+            try
+            {
+                if (!Directory.Exists(filePath))
+                {
+                    Directory.CreateDirectory(filePath);
+                }
+            }
+            catch { }
+            System.Diagnostics.Process.Start(filePath);
         }
     }
 }

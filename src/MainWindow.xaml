@@ -655,9 +655,11 @@
                         <TextBox Name="txt_search" Width="250" Height="40">
 
                         </TextBox>
-                        <Button Name="btn_search" IsDefault="True" Focusable="False" Margin=" 20 0 0 0" Width="100" Click="btn_search_Click">搜索本地</Button>
-                        <Button Name="btn_search_net" Focusable="False" Margin=" 20 0 0 0" Width="100" Click="btn_search_net_Click">搜索网络</Button>
-                        <Button Name="btn_refreshappslist" Margin=" 20 0 0 0" Focusable="False" Width="100" Click="btn_refreshappslist_Click">刷新列表</Button>
+                        <Button Name="btn_search" IsDefault="True" Focusable="False" Margin=" 20 0 0 0" Width="80" Click="btn_search_Click">搜索本地</Button>
+                        <Button Name="btn_search_net" Focusable="False" Margin=" 20 0 0 0" Width="80" Click="btn_search_net_Click">搜索网络</Button>
+                        <Button Name="btn_refreshappslist" Margin=" 20 0 0 0" Focusable="False" Width="80" Click="btn_refreshappslist_Click">刷新列表</Button>
+
+                        <Button Name="btn_opendownload" Margin=" 20 0 0 0" Focusable="False" Width="80" Padding="0" Click="btn_opendownload_Click">打开下载目录</Button>
                     </StackPanel>
 
 
