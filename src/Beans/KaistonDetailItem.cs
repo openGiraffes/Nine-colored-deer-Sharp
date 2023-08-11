@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Nine_colored_deer_Sharp.Beans
 {
-    public class KaistonDetailItem
+    public class KaistonDetailItem : IStonItem
     {
         /// <summary>
         /// 
@@ -77,7 +77,7 @@ namespace Nine_colored_deer_Sharp.Beans
         /// <summary>
         /// 
         /// </summary>
-        public List<int> category_list { get; set; }
+        public List<int> category_list { get; set; } = new List<int>();
         [JsonIgnore]
         static Dictionary<int, string> CATEGORY = new Dictionary<int, string>()
         {
@@ -101,15 +101,21 @@ namespace Nine_colored_deer_Sharp.Beans
                 return catlist;
             }
         }
+        public string _category_str;
         [JsonIgnore]
         public string category_str
         {
             get
             {
-                return string.Join(",", category_list_str);
+                var ret = string.Join(",", category_list_str);
+                if (string.IsNullOrWhiteSpace(ret))
+                {
+                    ret = _category_str;
+                }
+                return ret;
             }
         }
-
+        public string _icon;
         [JsonIgnore]
         public string icon
         {
@@ -119,7 +125,7 @@ namespace Nine_colored_deer_Sharp.Beans
                 {
                     return icons[icons.Keys.First()];
                 }
-                return "";
+                return _icon;
             }
         }
 

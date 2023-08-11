@@ -108,7 +108,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Beans\BHAppItem.cs" />
     <Compile Include="Beans\FileItem.cs" />
+    <Compile Include="Beans\IStonItem.cs" />
     <Compile Include="Beans\KaiosAppItem.cs" />
     <Compile Include="Beans\KaiosStoneItem.cs" />
     <Compile Include="Beans\KaistonDetailItem.cs" />

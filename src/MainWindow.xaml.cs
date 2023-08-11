@@ -27,6 +27,7 @@ using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using Nine_colored_deer_Sharp.Converts;
 using System.Windows.Markup;
+using EasyHttp.Http;
 
 namespace Nine_colored_deer_Sharp
 {
@@ -84,6 +85,7 @@ namespace Nine_colored_deer_Sharp
 
         //    }
         //}
+        bool isload = false;
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             MulitImageCacheConverter.CacheInit(System.IO.Path.Combine(Environment.CurrentDirectory, "Cache"), 3000, 3);
@@ -131,6 +133,7 @@ namespace Nine_colored_deer_Sharp
                     }
                 }
             });
+            isload = true;
         }
 
         private void SimplePanel_MouseDown(object sender, MouseButtonEventArgs e)
@@ -513,46 +516,156 @@ namespace Nine_colored_deer_Sharp
                 {
                     return;
                 }
-                setLoading(true);
-                await Task.Run(() =>
-                {
-                    try
-                    {
-
-                        KaiSton.getKey();
-
-                        string apps = "";
-                        if (File.Exists("apps.json") == false)
-                        {
-                            var ret = KaiSton.Request("GET", "/v3.0/apps?software=KaiOS_2.5.4.1&locale=zh-CN", "");//&category=30&page_num=1&page_size=20 
-                            apps = JObject.Parse(ret)["apps"].ToString(Formatting.None);
-                            File.WriteAllText("apps.json", apps);
-                        }
-                        else
-                        {
-                            apps = File.ReadAllText("apps.json");
-                        }
-
-                        allapps = JsonConvert.DeserializeObject<List<KaiosStoneItem>>(apps);
-                        App.Current?.Dispatcher?.Invoke(() =>
-                        {
-                            itemskaistonlist.ItemsSource = SplitPages(allapps);
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-                    finally
-                    {
-
-                        setLoading(false);
-                    }
-                });
-
+                getGuanfangApps();
             }
         }
+        /// <summary>
+        /// 获取官方商店数据
+        /// </summary>
+        private void getGuanfangApps()
+        {
+            setLoading(true);
+            Task.Run(() =>
+            {
+                try
+                {
 
+                    KaiSton.getKey();
+
+                    string apps = "";
+                    if (File.Exists("apps.json") == false)
+                    {
+                        var ret = KaiSton.Request("GET", "/v3.0/apps?software=KaiOS_2.5.4.1&locale=zh-CN", "");//&category=30&page_num=1&page_size=20 
+                        apps = JObject.Parse(ret)["apps"].ToString(Formatting.None);
+                        File.WriteAllText("apps.json", apps);
+                    }
+                    else
+                    {
+                        apps = File.ReadAllText("apps.json");
+                    }
+
+                    allapps = JsonConvert.DeserializeObject<List<KaiosStoneItem>>(apps);
+                    App.Current?.Dispatcher?.Invoke(() =>
+                    {
+                        itemskaistonlist.ItemsSource = SplitPages(allapps);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    DialogUtil.info(this.grid_info, "加载数据出错：" + ex.Message);
+                }
+                finally
+                {
+
+                    setLoading(false);
+                }
+            });
+        }
+        /// <summary>
+        /// 获取长颈鹿商店源
+        /// </summary>
+        private void getOpengiraffesApps()
+        {
+            setLoading(true);
+            Task.Run(() =>
+            {
+                try
+                {
+
+                    KaiSton.getKey();
+
+                    string apps = "";
+                    if (File.Exists("opengiraffesapps.json") == false)
+                    {
+                        HttpClient httpClient = new HttpClient();
+                        var ret = httpClient.Get("https://storedb.opengiraffes.top/data.json");
+                        apps = ret.RawText;
+                        File.WriteAllText("opengiraffesapps.json", apps);
+                    }
+                    else
+                    {
+                        apps = File.ReadAllText("opengiraffesapps.json");
+                    }
+                    apps = JObject.Parse(apps)["apps"].ToString();
+                    var t = JsonConvert.DeserializeObject<List<BHAppItem>>(apps);
+
+                    allapps = new List<KaiosStoneItem>();
+
+                    foreach (var item in t)
+                    {
+                        allapps.Add(item.convertToKaistonItem());
+                    }
+
+                    App.Current?.Dispatcher?.Invoke(() =>
+                    {
+                        itemskaistonlist.ItemsSource = SplitPages(allapps);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    DialogUtil.info(this.grid_info, "加载数据出错：" + ex.Message);
+                }
+                finally
+                {
+
+                    setLoading(false);
+                }
+            });
+        }
+        /// <summary>
+        /// 获取BH源
+        /// </summary>
+        private void geBHApps()
+        {
+            setLoading(true);
+            Task.Run(() =>
+            {
+                try
+                {
+
+                    KaiSton.getKey();
+
+                    string apps = "";
+                    if (File.Exists("bhapps.json") == false)
+                    {
+                        HttpClient httpClient = new HttpClient();
+                        var ret = httpClient.Get("https://banana-hackers.gitlab.io/store-db/data.json");
+                        apps = ret.RawText;
+                        File.WriteAllText("bhapps.json", apps);
+                    }
+                    else
+                    {
+                        apps = File.ReadAllText("bhapps.json");
+                    }
+                    apps = JObject.Parse(apps)["apps"].ToString();
+                    var t = JsonConvert.DeserializeObject<List<BHAppItem>>(apps);
+
+                    allapps = new List<KaiosStoneItem>();
+
+                    foreach (var item in t)
+                    {
+                        allapps.Add(item.convertToKaistonItem());
+                    }
+
+                    App.Current?.Dispatcher?.Invoke(() =>
+                    {
+                        itemskaistonlist.ItemsSource = SplitPages(allapps);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    DialogUtil.info(this.grid_info, "加载数据出错：" + ex.Message);
+                }
+                finally
+                {
+
+                    setLoading(false);
+                }
+            });
+        }
         private string NowPath = "";
         private async Task<List<FileItem>> getRootFiles(string path = "/")
         {
@@ -1171,7 +1284,8 @@ namespace Nine_colored_deer_Sharp
 
                             ZipFile zipFile = new ZipFile(filename);
                             var zipEntry = zipFile.FindEntry("manifest.webapp", true);
-                            if (zipEntry != -1)
+                            var zipEntry2 = zipFile.FindEntry("application.zip", true);
+                            if (zipEntry != -1 || zipEntry2 != -1)
                             {
                                 zipFile.Close();
                                 helper.installApp(filename);
@@ -1185,6 +1299,7 @@ namespace Nine_colored_deer_Sharp
                         catch (Exception ex)
                         {
                             Console.WriteLine(ex.Message);
+                            DialogUtil.info(grid_info, System.IO.Path.GetFileName(filename) + " 安装失败！" + ex.Message);
                         }
                         finally
                         {
@@ -1215,6 +1330,7 @@ namespace Nine_colored_deer_Sharp
                         catch (Exception ex)
                         {
                             Console.WriteLine(ex.Message);
+                            DialogUtil.info(grid_info, System.IO.Path.GetFileName(filename) + " 安装失败！" + ex.Message);
                         }
                         finally
                         {
@@ -1236,6 +1352,8 @@ namespace Nine_colored_deer_Sharp
             {
                 var tag = (sender as StackPanel)?.Tag as KaiosStoneItem;
 
+                var index = cmb_appsource.SelectedIndex;
+
                 if (tag != null)
                 {
                     setLoading(true);
@@ -1244,16 +1362,37 @@ namespace Nine_colored_deer_Sharp
 
                         try
                         {
-                            var url = "https://api.kaiostech.com/apps/manifest/" + tag.id;
-
-                            var ret = KaiSton.Request("GET", url, "");
-
-                            var data = JsonConvert.DeserializeObject<KaistonDetailItem>(ret);
-                            App.Current?.Dispatcher?.Invoke(() =>
+                            if (index == 0)
                             {
-                                gridshopinfo.DataContext = data;
-                                gridshopinfo.Visibility = Visibility.Visible;
-                            });
+                                var url = "https://api.kaiostech.com/apps/manifest/" + tag.id;
+
+                                var ret = KaiSton.Request("GET", url, "");
+
+                                var data = JsonConvert.DeserializeObject<KaistonDetailItem>(ret);
+                                App.Current?.Dispatcher?.Invoke(() =>
+                                {
+                                    gridshopinfo.DataContext = data;
+                                    gridshopinfo.Visibility = Visibility.Visible;
+                                });
+                            }
+                            else
+                            {
+                                var bhitem = tag.bHAppItem;
+                                if (bhitem != null)
+                                {
+                                    var kaideatil = bhitem.convertToKaistonDetail();
+
+                                    HttpClient httpClient = new HttpClient();
+                                    var ret = httpClient.Head(kaideatil.package_path);
+                                    var size = ret.ContentLength;
+                                    kaideatil.packaged_size = size;
+                                    App.Current?.Dispatcher?.Invoke(() =>
+                                    {
+                                        gridshopinfo.DataContext = kaideatil;
+                                        gridshopinfo.Visibility = Visibility.Visible;
+                                    });
+                                }
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -1285,7 +1424,8 @@ namespace Nine_colored_deer_Sharp
 
         private void btn_download_Click(object sender, RoutedEventArgs e)
         {
-            var tag = (sender as Button)?.Tag as KaiosStoneItem;
+            var tag = (sender as Button)?.Tag as IStonItem;
+
             if (tag != null)
             {
                 var downlink = tag.package_path;
@@ -1328,7 +1468,7 @@ namespace Nine_colored_deer_Sharp
 
         private void btn_install_Click(object sender, RoutedEventArgs e)
         {
-            var tag = (sender as Button)?.Tag as KaiosStoneItem;
+            var tag = (sender as Button)?.Tag as IStonItem;
             if (tag != null)
             {
                 var downlink = tag.package_path;
@@ -1368,7 +1508,7 @@ namespace Nine_colored_deer_Sharp
                     }
                     catch (Exception ex)
                     {
-
+                        DialogUtil.info(grid_info, downname + " 安装失败！" + ex.Message);
                     }
                     finally
                     {
@@ -1418,23 +1558,68 @@ namespace Nine_colored_deer_Sharp
         {
             if (MessageBox.Show("刷新列表会重新下载应用列表，这将会耗费数十秒的时间！是否刷新", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
+                var index = cmb_appsource.SelectedIndex;
                 setLoading(true);
                 Task.Run(() =>
                 {
                     try
                     {
-
-                        KaiSton.getKey();
-                        string apps = "";
-                        var ret = KaiSton.Request("GET", "/v3.0/apps?software=KaiOS_2.5.4.1&locale=zh-CN", "");//&category=30&page_num=1&page_size=20 
-                        apps = JObject.Parse(ret)["apps"].ToString(Formatting.None);
-                        File.WriteAllText("apps.json", apps);
-
-                        allapps = JsonConvert.DeserializeObject<List<KaiosStoneItem>>(apps);
-                        App.Current?.Dispatcher?.Invoke(() =>
+                        if (index == 0)
                         {
-                            itemskaistonlist.ItemsSource = SplitPages(allapps);
-                        });
+                            KaiSton.getKey();
+                            string apps = "";
+                            var ret = KaiSton.Request("GET", "/v3.0/apps?software=KaiOS_2.5.4.1&locale=zh-CN", "");//&category=30&page_num=1&page_size=20 
+                            apps = JObject.Parse(ret)["apps"].ToString(Formatting.None);
+                            File.WriteAllText("apps.json", apps);
+
+                            allapps = JsonConvert.DeserializeObject<List<KaiosStoneItem>>(apps);
+                            App.Current?.Dispatcher?.Invoke(() =>
+                            {
+                                itemskaistonlist.ItemsSource = SplitPages(allapps);
+                            });
+                        }
+                        else if (index == 1)
+                        {
+                            HttpClient httpClient = new HttpClient();
+                            var ret = httpClient.Get("https://storedb.opengiraffes.top/data.json");
+                            var apps = ret.RawText;
+                            File.WriteAllText("opengiraffesapps.json", apps);
+                            apps = JObject.Parse(apps)["apps"].ToString();
+                            var t = JsonConvert.DeserializeObject<List<BHAppItem>>(apps);
+
+                            allapps = new List<KaiosStoneItem>();
+
+                            foreach (var item in t)
+                            {
+                                allapps.Add(item.convertToKaistonItem());
+                            }
+
+                            App.Current?.Dispatcher?.Invoke(() =>
+                            {
+                                itemskaistonlist.ItemsSource = SplitPages(allapps);
+                            });
+                        }
+                        else if (index == 2)
+                        {
+                            HttpClient httpClient = new HttpClient();
+                            var ret = httpClient.Get("https://banana-hackers.gitlab.io/store-db/data.json");
+                            var apps = ret.RawText;
+                            File.WriteAllText("bhapps.json", apps);
+                            apps = JObject.Parse(apps)["apps"].ToString();
+                            var t = JsonConvert.DeserializeObject<List<BHAppItem>>(apps);
+
+                            allapps = new List<KaiosStoneItem>();
+
+                            foreach (var item in t)
+                            {
+                                allapps.Add(item.convertToKaistonItem());
+                            }
+
+                            App.Current?.Dispatcher?.Invoke(() =>
+                            {
+                                itemskaistonlist.ItemsSource = SplitPages(allapps);
+                            });
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -1473,6 +1658,58 @@ namespace Nine_colored_deer_Sharp
         {
             var ret = nowShowApps.Skip(20 * (hc_page.PageIndex - 1)).Take(20).ToList();
             itemskaistonlist.ItemsSource = ret;
+        }
+
+        private void btn_search_net_Click(object sender, RoutedEventArgs e)
+        {
+            var searchtext = txt_search.Text.Trim();
+            setLoading(true);
+            Task.Run(() =>
+            {
+                try
+                {
+                    var ret = KaiSton.Request("GET", "https://search.kaiostech.com/v3/_search?imei=12345678912345&mcc=null&mnc=null&curef=LEO-23LIO87CN00&platform=2.5.4.1&bookmark=true&page=0&size=1000&query=" + searchtext + "&querySource=landing_page&locale=zh-CN", "");
+
+                    var apps = JObject.Parse(ret)["organic"].ToString(Formatting.None);
+
+                    nowShowApps = JsonConvert.DeserializeObject<List<KaiosStoneItem>>(apps);
+                    App.Current?.Dispatcher?.Invoke(() =>
+                    {
+                        itemskaistonlist.ItemsSource = SplitPages(nowShowApps);
+                    });
+                }
+                catch (Exception ex)
+                {
+
+                }
+                finally
+                {
+                    setLoading(false);
+                }
+            });
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (isload == false)
+            {
+                return;
+            }
+            if (cmb_appsource.SelectedIndex == 0)
+            {
+                btn_search_net.Visibility = Visibility.Visible;
+                getGuanfangApps();
+            }
+            else if (cmb_appsource.SelectedIndex == 1)
+            {
+                btn_search_net.Visibility = Visibility.Collapsed;
+                getOpengiraffesApps();
+            }
+            else if (cmb_appsource.SelectedIndex == 2)
+            {
+                btn_search_net.Visibility = Visibility.Collapsed;
+                geBHApps();
+            }
         }
     }
 }

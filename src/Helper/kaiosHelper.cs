@@ -17,6 +17,8 @@ using System.Security.Policy;
 using Newtonsoft.Json;
 using System.Data;
 using System.Windows.Shapes;
+using static System.Net.Mime.MediaTypeNames;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace Nine_colored_deer_Sharp.Helper
 {
@@ -657,6 +659,39 @@ namespace Nine_colored_deer_Sharp.Helper
             {
                 try
                 {
+
+                    //application.zip  
+                    ZipFile zipFile = new ZipFile(filename);
+                    var zipEntry1 = zipFile.FindEntry("manifest.webapp", true);
+                    var zipEntry2 = zipFile.FindEntry("application.zip", true);
+                    if (zipEntry1 == -1 && zipEntry2 == -1)
+                    {
+                        zipFile.Close();
+                        throw new Exception("不受支持的安装包！");
+                    }
+                    byte[] zipdata = null;
+                    if (zipEntry2 != -1)
+                    {
+                        MemoryStream ms = new MemoryStream();
+                        Stream inputStream2 = zipFile.GetInputStream(zipEntry2);
+
+                        byte[] bArr2 = new byte[1600];
+                        while (true)
+                        {
+                            int read2 = inputStream2.Read(bArr2, 0, 1600);
+                            if (read2 <= 0)
+                            {
+                                break;
+                            }
+                            ms.Write(bArr2, 0, read2);
+                        }
+                        zipdata = ms.ToArray();
+                    }
+                    else
+                    {
+                        zipdata = File.ReadAllBytes(filename);
+                    }
+
                     //获取uploadActor
                     string ret = request("uploadPackage");
                     if (string.IsNullOrWhiteSpace(ret))
@@ -669,7 +704,7 @@ namespace Nine_colored_deer_Sharp.Helper
 
                     int chunksize = 20480;
                     //var zipdataraw = File.ReadAllBytes(filename);
-                    var zipdata = File.ReadAllBytes(filename);
+
                     ////上传数据
                     //string ret2 = request("chunk", new Dictionary<string, object>() { { "chunk", zipdata } }, uploadActor);
                     //if (string.IsNullOrWhiteSpace(ret2))
@@ -701,8 +736,13 @@ namespace Nine_colored_deer_Sharp.Helper
                     //开始安装文件
                     string ret4 = request("install", new Dictionary<string, string>() { { "upload", uploadActor } ,{ "appId", Guid.NewGuid().ToString() }
             }, webappsActor);
-                    if (string.IsNullOrWhiteSpace(ret4))
+                    if (string.IsNullOrWhiteSpace(ret4) || ret4.Contains("installationFailed"))
                     {
+                        if(string.IsNullOrWhiteSpace(ret4)==false)
+                        {
+                            var message = JObject.Parse(ret4)["message"].ToString();
+                            throw new Exception(message);   
+                        }
                         return false;
                     }
 
@@ -720,7 +760,12 @@ namespace Nine_colored_deer_Sharp.Helper
                 }
                 catch (Exception ex)
                 {
+                    if (ex is ICSharpCode.SharpZipLib.Zip.ZipException)
+                    {
+                        throw new Exception("不受支持的安装包，压缩文件损坏！");
+                    }
                     Console.WriteLine(ex.Message);
+                    throw ex;
                 }
                 return false;
             }

@@ -651,9 +651,29 @@
                         <TextBox Name="txt_search" Width="250" Height="40">
 
                         </TextBox>
-                        <Button Name="btn_search" IsDefault="True" Margin=" 20 0 0 0" Width="100" Click="btn_search_Click">搜索</Button>
-                        <Button Name="btn_refreshappslist" Margin=" 20 0 0 0" Width="100" Click="btn_refreshappslist_Click">刷新列表</Button>
+                        <Button Name="btn_search" IsDefault="True" Focusable="False" Margin=" 20 0 0 0" Width="100" Click="btn_search_Click">搜索本地</Button>
+                        <Button Name="btn_search_net" Focusable="False" Margin=" 20 0 0 0" Width="100" Click="btn_search_net_Click">搜索网络</Button>
+                        <Button Name="btn_refreshappslist" Margin=" 20 0 0 0" Focusable="False" Width="100" Click="btn_refreshappslist_Click">刷新列表</Button>
                     </StackPanel>
+
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right"  Margin="0 0 20 0">
+                        <TextBlock Text="商店源：" VerticalAlignment="Center" Margin="0 0 10 0"></TextBlock>
+                        <hc:ComboBox VerticalAlignment="Center" Name="cmb_appsource" VerticalContentAlignment="Center" Width="200" SelectionChanged="ComboBox_SelectionChanged">
+                            <ComboBoxItem IsSelected="True">
+                                官方商店
+                            </ComboBoxItem>
+                            <ComboBoxItem>
+                                长颈鹿商店
+                            </ComboBoxItem>
+                            <ComboBoxItem>
+                                BananaHackers商店
+                            </ComboBoxItem>
+
+                        </hc:ComboBox>
+
+                    </StackPanel>
+
                     <hc:ScrollViewer Name="sv_father" Grid.Row="1" >
 
                         <ItemsControl Name="itemskaistonlist" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"  Focusable="False" Margin="20 10 10 20">
@@ -736,8 +756,8 @@
                                         </TextBlock>
 
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Button Content="下载"  Name="btn_download" Tag="{Binding}" Click="btn_download_Click"></Button>
-                                            <Button Content="安装"  Name="btn_install" Tag="{Binding}" Click="btn_install_Click" Margin="10 0 0 0 "></Button>
+                                            <Button Content="下载" Focusable="False" Name="btn_download" Tag="{Binding}" Click="btn_download_Click"></Button>
+                                            <Button Content="安装" Focusable="False" Name="btn_install" Tag="{Binding}" Click="btn_install_Click" Margin="10 0 0 0 "></Button>
                                         </StackPanel>
                                         <TextBlock HorizontalAlignment="Center" Margin="0 5 0 5" >
                                         <Run Text="类别："></Run>
