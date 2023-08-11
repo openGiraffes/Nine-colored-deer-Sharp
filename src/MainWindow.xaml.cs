@@ -45,7 +45,6 @@ namespace Nine_colored_deer_Sharp
         public MainWindow()
         {
             InitializeComponent();
-            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls | SecurityProtocolType.Ssl3;
             int MYTHREAD_COUNT = 20;
             ThreadPool.SetMinThreads(MYTHREAD_COUNT, MYTHREAD_COUNT);
             ThreadPool.SetMaxThreads(MYTHREAD_COUNT * 5, MYTHREAD_COUNT * 5);
@@ -59,6 +58,15 @@ namespace Nine_colored_deer_Sharp
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             isclosed = true;
+            try
+            {
+                AdbClient adbClient = new AdbClient();
+                adbClient.KillAdb();
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
 
         //private void getMobileInfo()
