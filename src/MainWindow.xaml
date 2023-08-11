@@ -207,7 +207,7 @@
                     </StackPanel>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
 
-                        <Button Name="txt_Model" Click="txt_Model_Click" ToolTip="点击切换设备" Padding="0" Margin="0 10 0 30" HorizontalAlignment="Left">
+                        <Button Name="txt_Model" Click="txt_Model_Click" Focusable="False" ToolTip="点击切换设备" Padding="0" Margin="0 10 0 30" HorizontalAlignment="Left">
                             <Button.Template>
                                 <ControlTemplate>
                                     <TextBlock Margin="0 0 0 0" Text="{Binding Content,RelativeSource={RelativeSource Mode=TemplatedParent}}" FontSize="36" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
