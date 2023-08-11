@@ -28,6 +28,9 @@ using System.Net.Http.Headers;
 using Nine_colored_deer_Sharp.Converts;
 using System.Windows.Markup;
 using EasyHttp.Http;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace Nine_colored_deer_Sharp
 {
@@ -88,6 +91,7 @@ namespace Nine_colored_deer_Sharp
         bool isload = false;
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            txt_title.Text = "KaiOS手机助手 v" + getVersion();
             MulitImageCacheConverter.CacheInit(System.IO.Path.Combine(Environment.CurrentDirectory, "Cache"), 3000, 3);
 
             setLoading(true);
@@ -134,6 +138,22 @@ namespace Nine_colored_deer_Sharp
                 }
             });
             isload = true;
+        }
+
+        private string getVersion()
+        {
+            try
+            {
+                AssemblyName assemblyName2 = Assembly.GetExecutingAssembly().GetName();
+                Version version2 = assemblyName2.Version;
+                string version = version2.ToString();
+                string[] t = version.Split('.');
+                return string.Format("{0}.{1}.{2}", t[0], t[1], t[2]);
+            }
+            catch
+            {
+                return "1.0.0";
+            }
         }
 
         private void SimplePanel_MouseDown(object sender, MouseButtonEventArgs e)
@@ -1710,6 +1730,11 @@ namespace Nine_colored_deer_Sharp
                 btn_search_net.Visibility = Visibility.Collapsed;
                 geBHApps();
             }
+        }
+
+        private void btn_getupdate_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo("https://www.dospy.wang/thread-20208-1-1.html"));
         }
     }
 }

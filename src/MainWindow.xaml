@@ -25,9 +25,13 @@
         </Grid.RowDefinitions>
         <hc:SimplePanel Background="#018beb" MouseLeftButtonDown="SimplePanel_MouseDown">
 
-            <TextBlock Text="KaiOS手机助手" FontSize="22"  HorizontalAlignment="Left" Margin="20 20 0 0" VerticalAlignment="Top" Foreground="White"></TextBlock>
+            <TextBlock Text="KaiOS手机助手" FontSize="22" Name="txt_title"  HorizontalAlignment="Left" Margin="20 20 0 0" VerticalAlignment="Top" Foreground="White"></TextBlock>
 
             <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0 10 10 0 ">
+
+                <Button  Background="Transparent" Name="btn_getupdate" Click="btn_getupdate_Click" BorderThickness="0" VerticalAlignment="Center" VerticalContentAlignment="Center" Foreground="White" Margin="0 0 20 0" FontSize="18" Padding="0">
+                    检查更新
+                </Button>
 
                 <Button Width="32" Height="32" Name="btn_min" Click="btn_min_Click">
                     <Button.Template>

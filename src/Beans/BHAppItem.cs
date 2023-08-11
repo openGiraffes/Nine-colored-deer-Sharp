@@ -50,6 +50,19 @@ namespace Nine_colored_deer_Sharp.Beans
                 ret.package_path = ret.package_path.Replace("https://git.yumenaka.net/", "https://kaios.tri1.workers.dev/?url=");
             }
 
+            if (ret.package_path.StartsWith("https://kaios.tri1.workers.dev/?url="))
+            {
+                ret.package_path = ret.package_path.Replace("https://kaios.tri1.workers.dev/?url=", "https://ghproxy.com/");
+            }
+            if (ret.package_path.StartsWith("https://raw.githubusercontent.com/") || ret.package_path.StartsWith("https://www.github.com/"))
+            {
+                ret.package_path = "https://ghproxy.com/" + ret.package_path;
+            }
+            //if (ret.package_path.StartsWith("https://groups.google.com/"))
+            //{
+            //    ret.package_path = ret.package_path.Replace("https://groups.google.com/", "https://74.125.206.210/");
+            //}
+
             ret.developer = new Developer();
             ret.developer.name = string.Join(",", this.author);
             ret._category_str = string.Join(",", this.meta.categories);
