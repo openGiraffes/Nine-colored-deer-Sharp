@@ -1,24 +1,18 @@
-﻿using Newtonsoft.Json.Linq;
-using Nine_colored_deer_Sharp.utils;
-using AdvancedSharpAdbClient;
+﻿using AdvancedSharpAdbClient;
 using AdvancedSharpAdbClient.DeviceCommands;
+using ICSharpCode.SharpZipLib.Zip;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Nine_colored_deer_Sharp.Beans;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using Nine_colored_deer_Sharp.Beans;
-using System.Security.Policy;
-using Newtonsoft.Json;
-using System.Data;
-using System.Windows.Shapes;
-using static System.Net.Mime.MediaTypeNames;
-using ICSharpCode.SharpZipLib.Zip;
 
 namespace Nine_colored_deer_Sharp.Helper
 {
@@ -27,6 +21,15 @@ namespace Nine_colored_deer_Sharp.Helper
         private object locker = new object();
 
         Socket tcpClient;
+
+        public void closeTcp()
+        {
+            try
+            {
+                tcpClient?.Close();
+            }
+            catch (Exception ex) { }
+        }
 
         public byte[] withLen(string data)
         {
@@ -65,6 +68,10 @@ namespace Nine_colored_deer_Sharp.Helper
                         var abi = Properties["ro.product.cpu.abi"];
                         var pl = Properties["ro.board.platform"];
                         var baseos = Properties["ro.build.version.base_os"];
+                        if (string.IsNullOrWhiteSpace(baseos))
+                        {
+                            baseos = Properties["ro.build.version.fih"];
+                        }
                         var serial = Properties["ro.boot.serialno"];
 
                         App.Current?.Dispatcher?.Invoke(() =>
@@ -81,9 +88,16 @@ namespace Nine_colored_deer_Sharp.Helper
                         });
                         Task.Run(() =>
                         {
-                            getMemory();
-                            getUpTime();
-                            getKenralVersion();
+                            try
+                            {
+                                getMemory();
+                                getUpTime();
+                                getKenralVersion();
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
                         });
 
                     }
@@ -227,7 +241,7 @@ namespace Nine_colored_deer_Sharp.Helper
                     {
                         try
                         {
-                            adbclient.CreateForward(device, "tcp:6000", "localfilesystem:/data/local/debugger-socket", false);
+                            adbclient.CreateForward(device, "tcp:6000", "localfilesystem:/data/local/debugger-socket", true);
                         }
                         catch (Exception ex)
                         {
@@ -738,10 +752,10 @@ namespace Nine_colored_deer_Sharp.Helper
             }, webappsActor);
                     if (string.IsNullOrWhiteSpace(ret4) || ret4.Contains("installationFailed"))
                     {
-                        if(string.IsNullOrWhiteSpace(ret4)==false)
+                        if (string.IsNullOrWhiteSpace(ret4) == false)
                         {
                             var message = JObject.Parse(ret4)["message"].ToString();
-                            throw new Exception(message);   
+                            throw new Exception(message);
                         }
                         return false;
                     }

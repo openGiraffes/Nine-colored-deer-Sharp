@@ -60,7 +60,10 @@ namespace Nine_colored_deer_Sharp
             isclosed = true;
             try
             {
-                AdbClient adbClient = new AdbClient();
+                //helper?.closeTcp();
+                var device = kaiosHelper.getAdbDevice();
+                AdbClient adbClient = kaiosHelper.getAdbClient();
+                adbClient.RemoveAllForwards(device);
                 adbClient.KillAdb();
             }
             catch (Exception ex)
@@ -383,7 +386,7 @@ namespace Nine_colored_deer_Sharp
                     {
                         try
                         {
-                            client.CreateForward(device, "tcp:6000", "localfilesystem:/data/local/debugger-socket", false);
+                            client.CreateForward(device, "tcp:6000", "localfilesystem:/data/local/debugger-socket", true);
                         }
                         catch (Exception ex)
                         {
@@ -406,6 +409,32 @@ namespace Nine_colored_deer_Sharp
             //SimKey("*");
         }
 
+        Dictionary<string, string> KeyCodeList8110 = new Dictionary<string, string>()
+        {
+            { "1","2"},
+            { "2","3"},
+            { "3","4"},
+            { "4","5"},
+            { "5","6"},
+            { "6","7"},
+            { "7","8"},
+            { "8","9"},
+            { "9","10"},
+            { "0","11"},
+            { "*","522"},
+            { "#","523"},
+            { "left","105"},
+            { "right","106"},
+            { "up","103-event4"},
+            { "down","108-event3"},
+            { "softleft","139"},
+            { "softright","158"},
+            { "call","231"},
+            { "menu","212"},
+            { "back","116-event4"},
+            { "power","116-event3"},
+            { "ok","352"}
+        };
         Dictionary<string, string> KeyCodeList = new Dictionary<string, string>()
         {
             { "1","2"},
@@ -432,6 +461,17 @@ namespace Nine_colored_deer_Sharp
             { "power","107"},
             { "ok","352"}
         };
+        private bool is8110()
+        {
+            bool ret = false;
+
+            App.Current?.Dispatcher?.Invoke(() =>
+            {
+                ret = txt_Model.Content?.ToString()?.Contains("8110") == true;
+            });
+
+            return ret;
+        }
 
         private void SimKey(string keycode)
         {
@@ -442,14 +482,33 @@ namespace Nine_colored_deer_Sharp
                 return;
             }
 
+            if (is8110())
+            {
+                var key = KeyCodeList8110[keycode];
+                var eventn = "event0";
+                if (key.Contains("-"))
+                {
+                    var keys = key.Split('-');
+                    key = keys[0].PadLeft(4, '0');
+                    eventn = keys[1];
+                }
+                client.ExecuteShellCommand(device, "sendevent /dev/input/" + eventn + " 0001 " + key + " 00000001", null);
+                client.ExecuteShellCommand(device, "sendevent /dev/input/" + eventn + " 0000 0000 00000000", null);
 
-            var key = KeyCodeList[keycode].PadLeft(4, '0');
+                client.ExecuteShellCommand(device, "sendevent /dev/input/" + eventn + " 0001 " + key + " 00000000", null);
+                client.ExecuteShellCommand(device, "sendevent /dev/input/" + eventn + " 0000 0000 00000000", null);
+            }
+            else
+            {
+                var key = KeyCodeList[keycode].PadLeft(4, '0');
 
-            client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0001 " + key + " 00000001", null);
-            client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0000 0000 00000000", null);
+                client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0001 " + key + " 00000001", null);
+                client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0000 0000 00000000", null);
 
-            client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0001 " + key + " 00000000", null);
-            client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0000 0000 00000000", null);
+                client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0001 " + key + " 00000000", null);
+                client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0000 0000 00000000", null);
+
+            }
 
         }
 
@@ -461,11 +520,32 @@ namespace Nine_colored_deer_Sharp
             {
                 return;
             }
-            var key = KeyCodeList[keycode].PadLeft(4, '0');
 
-            client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0001 " + key + " 00000001", null);
-            client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0000 0000 00000000", null);
+            if (is8110())
+            {
+                if (keycode == "menu")
+                {
+                    DialogUtil.info(grid_info, "8110没有菜单键！");
+                }
+                var key = KeyCodeList8110[keycode];
+                var eventn = "event0";
+                if (key.Contains("-"))
+                {
+                    var keys = key.Split('-');
+                    key = keys[0].PadLeft(4, '0');
+                    eventn = keys[1];
+                }
+                client.ExecuteShellCommand(device, "sendevent /dev/input/" + eventn + " 0001 " + key + " 00000001", null);
+                client.ExecuteShellCommand(device, "sendevent /dev/input/" + eventn + " 0000 0000 00000000", null);
 
+            }
+            else
+            {
+                var key = KeyCodeList[keycode].PadLeft(4, '0');
+
+                client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0001 " + key + " 00000001", null);
+                client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0000 0000 00000000", null);
+            }
         }
         private void SimKeyUp(string keycode)
         {
@@ -475,11 +555,33 @@ namespace Nine_colored_deer_Sharp
             {
                 return;
             }
-            var key = KeyCodeList[keycode].PadLeft(4, '0');
+            if (is8110())
+            {
+                if (keycode == "menu")
+                {
+                    //return;
+                }
+                var key = KeyCodeList8110[keycode];
+                var eventn = "event0";
+                if (key.Contains("-"))
+                {
+                    var keys = key.Split('-');
+                    key = keys[0].PadLeft(4, '0');
+                    eventn = keys[1];
+                }
 
-            client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0001 " + key + " 00000000", null);
-            client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0000 0000 00000000", null);
+                client.ExecuteShellCommand(device, "sendevent /dev/input/" + eventn + " 0001 " + key + " 00000000", null);
+                client.ExecuteShellCommand(device, "sendevent /dev/input/" + eventn + " 0000 0000 00000000", null);
 
+            }
+            else
+            {
+                var key = KeyCodeList[keycode].PadLeft(4, '0');
+
+                client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0001 " + key + " 00000000", null);
+                client.ExecuteShellCommand(device, "sendevent /dev/input/event1 0000 0000 00000000", null);
+
+            }
         }
 
         private void btn_appmanage_Click(object sender, RoutedEventArgs e)

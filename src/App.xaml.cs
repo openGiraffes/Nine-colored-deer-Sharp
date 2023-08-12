@@ -7,9 +7,11 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
+using Nine_colored_deer_Sharp.utils;
 
 namespace Nine_colored_deer_Sharp
 {
@@ -26,6 +28,20 @@ namespace Nine_colored_deer_Sharp
             AppCenter.Start(Encoding.UTF8.GetString(Convert.FromBase64String("NzcwZGIxOTgtYmM2Mi00NjVmLWIyZjQtYzE1MTBjNDkxYmU2")),
                   typeof(Analytics), typeof(Crashes));
 
+
+            Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
+        }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            DialogUtil.info(Nine_colored_deer_Sharp.MainWindow.self.grid_info, "发生错误:" + e.ToString());
+        }
+
+        private void Current_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            DialogUtil.info(Nine_colored_deer_Sharp.MainWindow.self.grid_info, "发生错误:" + e.Exception.ToString());
         }
     }
 }
