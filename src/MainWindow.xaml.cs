@@ -661,7 +661,6 @@ namespace Nine_colored_deer_Sharp
             {
                 try
                 {
-
                     KaiSton.getKey();
 
                     string apps = "";
