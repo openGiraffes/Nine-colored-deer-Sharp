@@ -1654,8 +1654,19 @@ namespace Nine_colored_deer_Sharp
 
         private void btnOpenlocaldir_Click(object sender, RoutedEventArgs e)
         {
-            string filePath = Directory.GetCurrentDirectory() + "\\download\\";//文件（文件夹）路径
-            System.Diagnostics.Process.Start(filePath);
+            try
+            {
+                string filePath = Directory.GetCurrentDirectory() + "\\download\\";//文件（文件夹）路径
+                if(Directory.Exists(filePath)==false)
+                {
+                    Directory.CreateDirectory(filePath);
+                }
+                System.Diagnostics.Process.Start(filePath);
+            }catch(Exception ex)
+            {
+                DialogUtil.info(grid_info, "下载目录打开失败！" + ex.Message);
+            }
+          
         }
 
         private void btn_search_Click(object sender, RoutedEventArgs e)
