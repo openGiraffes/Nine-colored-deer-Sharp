@@ -39,6 +39,13 @@ namespace KaiosMarketDownloader
         Thread thread = null;
         private void button1_Click(object sender, EventArgs e)
         {
+            try
+            {
+                File.Delete("log.txt");
+            }catch(Exception ex) 
+            {
+
+            }
             ZengLiang = checkBox1.Checked;
             threadCount = Convert.ToInt32(numericUpDown1.Value);
             V3 = checkBox2.Checked;
@@ -110,6 +117,10 @@ namespace KaiosMarketDownloader
                 txt_log.ScrollToCaret();
 
             }));
+            lock(locker)
+            {
+                File.AppendAllText("log.txt", msg);
+            }
         }
         int threadCount = 5;
         int now = 0;
