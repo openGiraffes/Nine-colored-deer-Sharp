@@ -16,9 +16,12 @@ namespace KaiosMarketDownloader.utils
     {
         public static string settingsStr = "{\"dev\":{\"model\":\"GoFlip2\",\"imei\":\"123456789012345\",\"type\":999999,\"brand\":\"AlcatelOneTouch\",\"os\":\"KaiOS\",\"version\":\"2.5\",\"ua\":\"Mozilla/5.0 (Mobile; GoFlip2; rv:48.0) Gecko/48.0 Firefox/48.0 KAIOS/2.5\",\"cu\":\"4044O-2BAQUS1-R\",\"mcc\":\"0\",\"mnc\":\"0\"},\"api\":{\"app\":{\"id\":\"CAlTn_6yQsgyJKrr-nCh\",\"name\":\"KaiOS Plus\",\"ver\":\"2.5.4\"},\"server\":{\"url\":\"https://api.kaiostech.com\"},\"ver\":\"2.0\"}}";
 
+        public static string V3Str = "{\"dev\":{\"model\":\"2780 Flip\",\"imei\":\"123456789012345\",\"type\":999999,\"brand\":\"Nokia\",\"os\":\"KaiOS\",\"version\":\"3.1\",\"ua\":\"Mozilla/5.0 (Mobile; Nokia 2780 Flip; rv:84.0) Gecko/84.0 Firefox/84.0 KAIOS/3.1\",\"cu\":\"4044O-2BAQUS1-R\",\"mcc\":\"0\",\"mnc\":\"0\"},\"api\":{\"app\":{\"id\":\"CAlTn_6yQsgyJKrr-nCh\",\"name\":\"KaiOS Plus\",\"ver\":\"3.1.0\"},\"server\":{\"url\":\"https://api.kaiostech.com\"},\"ver\":\"3.0\"}}";
+        public static string V2Str = "{\"dev\":{\"model\":\"GoFlip2\",\"imei\":\"123456789012345\",\"type\":999999,\"brand\":\"AlcatelOneTouch\",\"os\":\"KaiOS\",\"version\":\"2.5\",\"ua\":\"Mozilla/5.0 (Mobile; GoFlip2; rv:48.0) Gecko/48.0 Firefox/48.0 KAIOS/2.5\",\"cu\":\"4044O-2BAQUS1-R\",\"mcc\":\"0\",\"mnc\":\"0\"},\"api\":{\"app\":{\"id\":\"CAlTn_6yQsgyJKrr-nCh\",\"name\":\"KaiOS Plus\",\"ver\":\"2.5.4\"},\"server\":{\"url\":\"https://api.kaiostech.com\"},\"ver\":\"2.0\"}}";
+
         static string authmethod = "api-key";
         static string authkey = "baJ_nea27HqSskijhZlT";
-        static JObject jsonSetting = null;
+        public static JObject jsonSetting = null;
 
         private static string token { get; set; }
 

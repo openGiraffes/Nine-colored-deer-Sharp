@@ -25,12 +25,37 @@ namespace KaiosMarketDownloader
         public Form1()
         {
             InitializeComponent();
+            this.Load += Form1_Load;
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            numericUpDown1.Value = OperateIniFile.ReadIniInt("setting", "threadCount", threadCount);
+            checkBox1.Checked = OperateIniFile.ReadIniInt("setting", "ZengLiang", ZengLiang ? 1 : 0) == 1 ? true : false;
+
+            checkBox2.Checked = OperateIniFile.ReadIniInt("setting", "V3", V3 ? 1 : 0) == 1 ? true : false;
+        }
+        private bool V3 = true;
         Thread thread = null;
         private void button1_Click(object sender, EventArgs e)
         {
             ZengLiang = checkBox1.Checked;
             threadCount = Convert.ToInt32(numericUpDown1.Value);
+            V3 = checkBox2.Checked;
+            OperateIniFile.WriteIniInt("setting", "threadCount", threadCount);
+            OperateIniFile.WriteIniInt("setting", "ZengLiang", ZengLiang ? 1 : 0); 
+            OperateIniFile.WriteIniInt("setting", "V3", V3 ? 1 : 0);
+
+            if(V3)
+            {
+                KaiSton.settingsStr = KaiSton.V3Str;
+                KaiSton.jsonSetting = JObject.Parse(KaiSton.settingsStr);
+            }
+            else {
+                KaiSton.settingsStr = KaiSton.V2Str;
+                KaiSton.jsonSetting = JObject.Parse(KaiSton.settingsStr);
+            }
+
             if (button1.Text== "开始下崽")
             {
                 button1.Enabled = false;
@@ -198,14 +223,40 @@ namespace KaiosMarketDownloader
                 Log("开始下崽..."); 
                 KaiSton.getKey();
                 Log("正在寻找母鸡...");
-                var ret = KaiSton.Request("GET", "/v3.0/apps?software=KaiOS_2.5.4.1&locale=zh-CN", "");//&category=30&page_num=1&page_size=20 
+                var ret = "";
+
+                if (V3)
+                {
+                    ret = KaiSton.Request("GET", "/v3.0/apps?software=KaiOS_3.1.0.0&locale=zh-CN", "");//&category=30&page_num=1&page_size=20 
+                }
+                else
+                {
+
+                    ret = KaiSton.Request("GET", "/v3.0/apps?software=KaiOS_2.5.4.1&locale=zh-CN", "");//&category=30&page_num=1&page_size=20 
+                }
                 var retjson = JObject.Parse(ret);
                 var apps = retjson.ToString(Formatting.Indented);
-                File.WriteAllText("appsdata.json", apps);
+                if(V3)
+                { 
+                    File.WriteAllText("appsdata_v3.json", apps);
+                }
+                else
+                { 
+                    File.WriteAllText("appsdata_v2.json", apps);
+                }
                 var allapps = JsonConvert.DeserializeObject<List<KaiosStoneItem>>(retjson["apps"].ToString());
 
                 Log("母鸡已经找到，共有" + allapps.Count + "个崽，开始准备下崽...");
                 string downloadpath = Directory.GetCurrentDirectory() + "\\eggs\\";
+                if(V3)
+                {
+                    downloadpath = Directory.GetCurrentDirectory() + "\\eggs_v3\\";
+                }
+                else
+                {
+                    downloadpath = Directory.GetCurrentDirectory() + "\\eggs_v2\\";
+                }
+
                 try
                 {
 
@@ -219,7 +270,8 @@ namespace KaiosMarketDownloader
 
                 }
                 downlist.Clear();
-                count = allapps.Count;
+                count = allapps.Count; 
+                UpdateLabel();
                 for (int i = 0;i<allapps.Count;i++)
                 {
                     now = i + 1;
@@ -269,6 +321,11 @@ namespace KaiosMarketDownloader
                                         Log("当前是增量下崽，第" + (i + 1) + "只崽 " + rename + " 已经在窝里了！");
                                         continue;
                                     }
+                                }
+                                else
+                                {
+                                    Log("当前是增量下崽，第" + (i + 1) + "只崽 " + rename + " 已经在窝里了！");
+                                    continue;
                                 }
                             }
                             catch (Exception ex)
