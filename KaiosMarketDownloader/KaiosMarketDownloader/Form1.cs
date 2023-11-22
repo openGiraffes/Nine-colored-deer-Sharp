@@ -289,7 +289,7 @@ namespace KaiosMarketDownloader
 
                     KaiosStoneItem item = allapps[i];
                     item.nowid = i;
-                    string rename = item.display.Replace(" ", " ") + " " + item.version + ".zip";
+                    string rename = (item.display?.Replace(" ", " ")?? item.name?.Replace(" ", " ") )+ " " + item.version + ".zip";
                     rename = rename.Replace("\\", " ");
 
                     rename = rename.Replace("/", " ");
