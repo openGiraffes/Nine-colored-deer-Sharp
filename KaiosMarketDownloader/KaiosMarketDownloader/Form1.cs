@@ -34,9 +34,12 @@ namespace KaiosMarketDownloader
             checkBox1.Checked = OperateIniFile.ReadIniInt("setting", "ZengLiang", ZengLiang ? 1 : 0) == 1 ? true : false;
 
             checkBox2.Checked = OperateIniFile.ReadIniInt("setting", "V3", V3 ? 1 : 0) == 1 ? true : false;
+
+            checkBox3.Checked = OperateIniFile.ReadIniInt("setting", "CustomUA", CustomUA ? 1 : 0) == 1 ? true : false;
         }
         private bool V3 = true;
         Thread thread = null;
+        private bool CustomUA = false;
         private void button1_Click(object sender, EventArgs e)
         {
             try
@@ -49,19 +52,34 @@ namespace KaiosMarketDownloader
             ZengLiang = checkBox1.Checked;
             threadCount = Convert.ToInt32(numericUpDown1.Value);
             V3 = checkBox2.Checked;
+            CustomUA=checkBox3.Checked;
             OperateIniFile.WriteIniInt("setting", "threadCount", threadCount);
             OperateIniFile.WriteIniInt("setting", "ZengLiang", ZengLiang ? 1 : 0); 
             OperateIniFile.WriteIniInt("setting", "V3", V3 ? 1 : 0);
+            OperateIniFile.WriteIniInt("setting", "CustomUA", CustomUA ? 1 : 0);
 
-            if(V3)
+            var ua = OperateIniFile.ReadIniString("setting", "ua", KaiSton.V3Str);
+            if(CustomUA)
             {
-                KaiSton.settingsStr = KaiSton.V3Str;
+                KaiSton.settingsStr = ua;
+
                 KaiSton.jsonSetting = JObject.Parse(KaiSton.settingsStr);
             }
-            else {
-                KaiSton.settingsStr = KaiSton.V2Str;
-                KaiSton.jsonSetting = JObject.Parse(KaiSton.settingsStr);
+            else
+            {
+                if (V3)
+                {
+                    KaiSton.settingsStr = KaiSton.V3Str;
+
+                    KaiSton.jsonSetting = JObject.Parse(KaiSton.settingsStr);
+                }
+                else
+                {
+                    KaiSton.settingsStr = KaiSton.V2Str;
+                    KaiSton.jsonSetting = JObject.Parse(KaiSton.settingsStr);
+                }
             }
+            
 
             if (button1.Text== "开始下崽")
             {
@@ -371,6 +389,188 @@ namespace KaiosMarketDownloader
                     button1.Text = "开始下崽";
                 }));
             }
+        }
+        private bool isrunning = false;
+        private void button2_Click(object sender, EventArgs e)
+        {
+            try {
+                ZengLiang = checkBox1.Checked;
+                threadCount = Convert.ToInt32(numericUpDown1.Value);
+                V3 = checkBox2.Checked;
+                CustomUA = checkBox3.Checked;
+                OperateIniFile.WriteIniInt("setting", "threadCount", threadCount);
+                OperateIniFile.WriteIniInt("setting", "ZengLiang", ZengLiang ? 1 : 0);
+                OperateIniFile.WriteIniInt("setting", "V3", V3 ? 1 : 0);
+                OperateIniFile.WriteIniInt("setting", "CustomUA", CustomUA ? 1 : 0);
+
+                var ua = OperateIniFile.ReadIniString("setting", "ua", KaiSton.V3Str);
+                if (CustomUA)
+                {
+                    KaiSton.settingsStr = ua;
+
+                    KaiSton.jsonSetting = JObject.Parse(KaiSton.settingsStr);
+                }
+                else
+                {
+                    if (V3)
+                    {
+                        KaiSton.settingsStr = KaiSton.V3Str;
+
+                        KaiSton.jsonSetting = JObject.Parse(KaiSton.settingsStr);
+                    }
+                    else
+                    {
+                        KaiSton.settingsStr = KaiSton.V2Str;
+                        KaiSton.jsonSetting = JObject.Parse(KaiSton.settingsStr);
+                    }
+                }
+
+
+                if (isrunning)
+                {
+
+                    Log("正在整理崽崽，请稍等...");
+                    return;
+                }
+
+            if (button1.Text == "开始下崽")
+                {
+                    isrunning = true;
+                    Task.Run(() =>
+                    {
+                        try
+                        {
+                            Log("开始整理崽崽...");
+                            KaiSton.getKey();
+                            Log("正在寻找崽崽的索引...");
+                            var ret = "";
+
+                            if (V3)
+                            {
+                                ret = KaiSton.Request("GET", "/v3.0/apps?software=KaiOS_3.1.0.0&locale=zh-CN", "");//&category=30&page_num=1&page_size=20 
+                            }
+                            else
+                            {
+
+                                ret = KaiSton.Request("GET", "/v3.0/apps?software=KaiOS_2.5.4.1&locale=zh-CN", "");//&category=30&page_num=1&page_size=20 
+                            }
+                            var retjson = JObject.Parse(ret);
+                            var apps = retjson.ToString(Formatting.Indented);
+                            if (V3)
+                            {
+                                File.WriteAllText("appsdata_v3.json", apps);
+                            }
+                            else
+                            {
+                                File.WriteAllText("appsdata_v2.json", apps);
+                            }
+                            var allapps = JsonConvert.DeserializeObject<List<KaiosStoneItem>>(retjson["apps"].ToString());
+
+                            string downloadpath = Directory.GetCurrentDirectory() + "\\eggs\\";
+                            string oldpath = Directory.GetCurrentDirectory() + "\\eggs_old\\";
+                            if (V3)
+                            {
+                                downloadpath = Directory.GetCurrentDirectory() + "\\eggs_v3\\";
+                                oldpath = Directory.GetCurrentDirectory() + "\\eggs_v3_old\\";
+                            }
+                            else
+                            {
+                                downloadpath = Directory.GetCurrentDirectory() + "\\eggs_v2\\";
+                                oldpath = Directory.GetCurrentDirectory() + "\\eggs_v2_old\\";
+                            }
+                            if(!Directory.Exists(oldpath))
+                            {
+                                try
+                                {
+                                    Directory.CreateDirectory(oldpath); 
+                                }
+                                catch(Exception ex)
+                                {
+                                } 
+                            }
+                            List<string> saveNames = new List<string>();
+                            for (int i = 0; i < allapps.Count; i++)
+                            {
+                                now = i + 1;
+
+                                KaiosStoneItem item = allapps[i];
+                                item.nowid = i;
+                                string rename = (item.display?.Replace(" ", " ") ?? item.name?.Replace(" ", " ")) + " " + item.version + ".zip";
+                                rename = rename.Replace("\\", " ");
+
+                                rename = rename.Replace("/", " ");
+
+                                rename = rename.Replace(":", " ");
+
+                                rename = rename.Replace("*", " ");
+
+                                rename = rename.Replace("\"", " ");
+
+                                rename = rename.Replace("<", " ");
+
+                                rename = rename.Replace(">", " ");
+
+                                rename = rename.Replace("|", " ");
+
+                                rename = rename.Replace("?", " ");
+
+                                var savename = rename;
+                                saveNames.Add(savename);
+                            }
+                            int cnt = 0;
+                            List<string> paths = Directory.GetFiles(downloadpath).ToList();
+
+                            foreach (string path in paths)
+                            {
+                                string pth = Path.GetFileName(path);
+                                if (!saveNames.Contains(pth))
+                                {
+                                    try
+                                    { 
+                                        File.Move(path, oldpath + pth);
+
+                                        Log(pth + "已移动！");
+                                        cnt++;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Log("悲，报错了！！！" + ex.Message);
+
+                                    }
+                                }
+                            }
+
+                            Log("操作完成，移动了" + cnt + "个旧崽！");
+                        }catch(Exception ex)
+                        {
+
+                            Log("悲，报错了！！！" + ex.Message);
+                        }
+                        finally
+                        {
+                            isrunning = false;
+                        }
+                    }); 
+                }
+                else
+            {
+                MessageBox.Show("正在下崽，请等待结束后再执行整理操作！");
+            }
+        }
+            catch(Exception ex)
+            {
+                Log("悲，报错了！！！" + ex.Message); 
+
+            }
+}
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("请在打开的文本编辑器中编辑setting，ua 的数据！");
+            var ua = OperateIniFile.ReadIniString("setting", "ua", KaiSton.V3Str);
+            OperateIniFile.WriteIniString("setting","ua", ua);
+            System.Diagnostics.Process.Start("Explorer", OperateIniFile.IniFileName);
+            
         }
     }
 }
