@@ -24,6 +24,7 @@ namespace KaiosMarketDownloader.utils
         public static JObject jsonSetting = null;
 
         private static string token { get; set; }
+        public static string model { get; set; }
 
         public static string getKey()
         {
@@ -32,6 +33,8 @@ namespace KaiosMarketDownloader.utils
                 jsonSetting = JObject.Parse(settingsStr);
             }
             var ret = "";
+            
+            model = jsonSetting["dev"]["model"].ToString();
 
             HttpClient httpClient = new HttpClient();
 
