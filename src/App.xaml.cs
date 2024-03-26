@@ -30,8 +30,14 @@ namespace Nine_colored_deer_Sharp
 
 
             Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            //Task线程内未捕获异常处理事件
+            TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException; 
+        }
 
+        private void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        {
+            DialogUtil.info(Nine_colored_deer_Sharp.MainWindow.self.grid_info, "发生错误:" + e.Exception.Message.ToString());
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -41,7 +47,8 @@ namespace Nine_colored_deer_Sharp
 
         private void Current_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            DialogUtil.info(Nine_colored_deer_Sharp.MainWindow.self.grid_info, "发生错误:" + e.Exception.ToString());
+            e.Handled = true;
+            DialogUtil.info(Nine_colored_deer_Sharp.MainWindow.self.grid_info, "发生错误:" + e.Exception.Message.ToString());
         }
     }
 }

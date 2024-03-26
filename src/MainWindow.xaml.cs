@@ -333,16 +333,20 @@ namespace Nine_colored_deer_Sharp
                 if (isloading)
                 {
                     grid_loading.Visibility = Visibility.Visible;
-                    hc_loading.Visibility = Visibility.Visible;
+                    hc_loading.Visibility = Visibility.Visible; 
+                    hc_text_process.Text = "加载中..."; 
+                    hc_text_process.Visibility = Visibility.Visible;
                 }
                 else
                 {
                     grid_loading.Visibility = Visibility.Collapsed;
                     hc_loading.Visibility = Visibility.Collapsed;
+                    hc_text_process.Text = ""; 
+                    hc_text_process.Visibility = Visibility.Collapsed;
                 }
-                hc_progress.Visibility = Visibility.Collapsed;
-                hc_text_process.Visibility = Visibility.Collapsed;
+                hc_progress.Visibility = Visibility.Collapsed; 
                 hc_loading.IsRunning = isloading;
+
             });
         }
         public void setProcess(int value)
@@ -826,6 +830,7 @@ namespace Nine_colored_deer_Sharp
             return fileReceiver.FileList;
         }
 
+        CancellationTokenSource cts;
         private async void grid_fileinfo_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             try
@@ -889,8 +894,20 @@ namespace Nine_colored_deer_Sharp
                                     hc_text_process.Text = "正在下载文件";
                                     await Task.Run(() =>
                                     {
-                                        kaiosHelper.DownloadFile(shelldata, downpath, new ProcessViewer());
-                                        DialogUtil.success(grid_info, "成功下载 " + path + " 到 download 目录");
+                                        try
+                                        {
+                                            cts = new CancellationTokenSource();
+                                            btn_cancelDownload.Dispatcher.Invoke(() => { btn_cancelDownload.Visibility = Visibility.Visible; });
+                                            kaiosHelper.DownloadFile(shelldata, downpath, new ProcessViewer(), cts.Token);
+                                            DialogUtil.success(grid_info, "成功下载 " + path + " 到 download 目录");
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            DialogUtil.info(grid_info, "已取消下载");
+
+                                            btn_cancelDownload.Dispatcher.Invoke(() => { btn_cancelDownload.Visibility = Visibility.Collapsed; });
+                                            MainWindow.self.setLoading(false);
+                                        }
                                     });
 
                                 }
@@ -1113,8 +1130,21 @@ namespace Nine_colored_deer_Sharp
                                     hc_text_process.Text = "正在下载文件";
                                     await Task.Run(() =>
                                     {
-                                        kaiosHelper.DownloadFile(shelldata, downpath, new ProcessViewer());
-                                        DialogUtil.success(grid_info, "成功下载 " + path + " 到 download 目录");
+
+                                        try
+                                        {
+                                            cts = new CancellationTokenSource();
+                                            btn_cancelDownload.Dispatcher.Invoke(() => { btn_cancelDownload.Visibility = Visibility.Visible; });
+                                            kaiosHelper.DownloadFile(shelldata, downpath, new ProcessViewer(), cts.Token);
+                                            DialogUtil.success(grid_info, "成功下载 " + path + " 到 download 目录");
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            DialogUtil.info(grid_info, "已取消下载");
+
+                                            btn_cancelDownload.Dispatcher.Invoke(() => { btn_cancelDownload.Visibility = Visibility.Collapsed; });
+                                            MainWindow.self.setLoading(false);
+                                        }
                                     });
                                 }
                                 else
@@ -1272,7 +1302,7 @@ namespace Nine_colored_deer_Sharp
             }
             catch (Exception ex)
             {
-                return "777";
+                return "000";
             }
         }
 
@@ -1372,7 +1402,7 @@ namespace Nine_colored_deer_Sharp
             await Task.Run(async () =>
             {
                 await refreshApps();
-                Thread.Sleep(300);
+                //Thread.Sleep(300);
                 setLoading(false);
             });
         }
@@ -1477,20 +1507,25 @@ namespace Nine_colored_deer_Sharp
             }
         }
 
+        KaiosStoneItem tag;
         private void StackPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             try
             {
-                var tag = (sender as StackPanel)?.Tag as KaiosStoneItem;
+                tag = (sender as StackPanel)?.Tag as KaiosStoneItem;
 
                 var index = cmb_appsource.SelectedIndex;
 
                 if (tag != null)
                 {
-                    setLoading(true);
-                    Task.Run(() =>
+                    //setLoading(true);
+                    App.Current?.Dispatcher?.Invoke(() =>
                     {
-
+                        gridshopinfo.DataContext = tag;
+                        gridshopinfo.Visibility = Visibility.Visible;
+                    });
+                    Task.Run(() =>
+                    { 
                         try
                         {
                             if (index == 0)
@@ -1500,11 +1535,14 @@ namespace Nine_colored_deer_Sharp
                                 var ret = KaiSton.Request("GET", url, "");
 
                                 var data = JsonConvert.DeserializeObject<KaistonDetailItem>(ret);
-                                App.Current?.Dispatcher?.Invoke(() =>
+                                if(data.version==tag.version )
                                 {
-                                    gridshopinfo.DataContext = data;
-                                    gridshopinfo.Visibility = Visibility.Visible;
-                                });
+                                    App.Current?.Dispatcher?.Invoke(() =>
+                                    {
+                                        gridshopinfo.DataContext = data;
+                                        //gridshopinfo.Visibility = Visibility.Visible;
+                                    });
+                                } 
                             }
                             else
                             {
@@ -1517,21 +1555,24 @@ namespace Nine_colored_deer_Sharp
                                     var ret = httpClient.Head(kaideatil.package_path);
                                     var size = ret.ContentLength;
                                     kaideatil.packaged_size = size;
-                                    App.Current?.Dispatcher?.Invoke(() =>
+                                    if (kaideatil.version == tag.version)
                                     {
-                                        gridshopinfo.DataContext = kaideatil;
-                                        gridshopinfo.Visibility = Visibility.Visible;
-                                    });
+                                        App.Current?.Dispatcher?.Invoke(() =>
+                                        {
+                                            gridshopinfo.DataContext = kaideatil;
+                                            //gridshopinfo.Visibility = Visibility.Visible;
+                                        });
+                                    }
                                 }
                             }
                         }
                         catch (Exception ex)
                         {
-                            App.Current?.Dispatcher?.Invoke(() =>
-                            {
-                                gridshopinfo.DataContext = tag;
-                                gridshopinfo.Visibility = Visibility.Visible;
-                            });
+                            //App.Current?.Dispatcher?.Invoke(() =>
+                            //{
+                            //    gridshopinfo.DataContext = tag;
+                            //    //gridshopinfo.Visibility = Visibility.Visible;
+                            //});
                             // DialogUtil.info(grid_info, "操作失败：" + ex.Message);
                         }
                         finally
@@ -1560,6 +1601,11 @@ namespace Nine_colored_deer_Sharp
             if (tag != null)
             {
                 var downlink = tag.package_path;
+                if(string.IsNullOrEmpty(downlink))
+                {
+                    DialogUtil.info(grid_info, "下载失败,暂未获取到下载链接！" );
+                    return;
+                }
                 var downname = tag.name + "v" + tag.version + ".zip";
                 setLoading(true);
                 Task.Run(() =>
@@ -1623,9 +1669,13 @@ namespace Nine_colored_deer_Sharp
                         }
                         if (File.Exists(path + "\\" + downname) == false)
                         {
+                            if (string.IsNullOrEmpty(downlink))
+                            {
+                                DialogUtil.info(grid_info, "下载安装失败,暂未获取到下载链接！");
+                                return;
+                            }
                             var res = KaiSton.RequestDown("GET", downlink, "");
-                            File.WriteAllBytes(path + "\\" + downname, res);
-
+                            File.WriteAllBytes(path + "\\" + downname, res); 
                         }
                         var ret = helper.installApp(path + "\\" + downname);
                         if (ret)
@@ -1872,6 +1922,24 @@ namespace Nine_colored_deer_Sharp
             }
             catch { }
             System.Diagnostics.Process.Start(filePath);
+        }
+
+        private void btn_cancelDownload_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("是否取消下载文件？", "取消确认", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    if (cts != null)
+                    {
+                        cts.Cancel();
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+            } 
         }
     }
 }

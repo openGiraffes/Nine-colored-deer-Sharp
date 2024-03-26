@@ -173,7 +173,7 @@ namespace Nine_colored_deer_Sharp.Helper
 
                 if (nowdevice != null)
                 {
-                    nowdevice = devices.Where(p => p.Serial == nowdevice.Serial).FirstOrDefault();
+                    nowdevice = devices.Where(p => p.Serial == nowdevice?.Serial)?.FirstOrDefault();
                     if (nowdevice?.State == DeviceState.Online)
                     {
                         return nowdevice;
@@ -614,7 +614,7 @@ namespace Nine_colored_deer_Sharp.Helper
             }
         }
 
-        public static void DownloadFile(string remotefile, string localpath, IProgress<int> process)
+        public static void DownloadFile(string remotefile, string localpath, IProgress<int> process, CancellationToken token)
         {
             if (File.Exists(localpath))
             {
@@ -626,7 +626,7 @@ namespace Nine_colored_deer_Sharp.Helper
             {
                 using (Stream stream = File.OpenWrite(localpath))
                 {
-                    service.Pull(remotefile, stream, process, CancellationToken.None);
+                    service.Pull(remotefile, stream, process, token);
                 }
             }
         }
