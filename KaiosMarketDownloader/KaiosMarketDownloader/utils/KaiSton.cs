@@ -38,6 +38,8 @@ namespace KaiosMarketDownloader.utils
 
             HttpClient httpClient = new HttpClient();
 
+            httpClient.Request.Proxy = WebProxy.GetDefaultProxy();
+
             var datajson = new JObject();
             datajson["brand"] = jsonSetting["dev"]["brand"];
             datajson["device_id"] = jsonSetting["dev"]["imei"];
@@ -96,7 +98,7 @@ namespace KaiosMarketDownloader.utils
             var ret = "";
 
             HttpClient httpClient = new HttpClient();
-
+            httpClient.Request.Proxy = WebProxy.GetDefaultProxy();
             var datajson = new JObject();
             datajson["brand"] = jsonSetting["dev"]["brand"];
             datajson["device_id"] = jsonSetting["dev"]["imei"];
@@ -195,6 +197,7 @@ namespace KaiosMarketDownloader.utils
             }
 
             HttpClient httpClient = new HttpClient();
+            httpClient.Request.Proxy = WebProxy.GetDefaultProxy();
 
             var datajson = new JObject();
             datajson["brand"] = jsonSetting["dev"]["brand"];
