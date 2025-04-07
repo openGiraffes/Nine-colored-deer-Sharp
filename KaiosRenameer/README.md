@@ -1,0 +1,4 @@
+# KaiosRenameer
+KaiosRenameer kaios应用重命名工具，附带kaios3转kaios2的功能
+
+准备添加kaios2转kaios3应用的功能
