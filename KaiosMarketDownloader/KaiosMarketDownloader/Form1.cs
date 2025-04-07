@@ -45,21 +45,22 @@ namespace KaiosMarketDownloader
             try
             {
                 File.Delete("log.txt");
-            }catch(Exception ex) 
+            }
+            catch (Exception ex)
             {
 
             }
             ZengLiang = checkBox1.Checked;
             threadCount = Convert.ToInt32(numericUpDown1.Value);
             V3 = checkBox2.Checked;
-            CustomUA=checkBox3.Checked;
+            CustomUA = checkBox3.Checked;
             OperateIniFile.WriteIniInt("setting", "threadCount", threadCount);
-            OperateIniFile.WriteIniInt("setting", "ZengLiang", ZengLiang ? 1 : 0); 
+            OperateIniFile.WriteIniInt("setting", "ZengLiang", ZengLiang ? 1 : 0);
             OperateIniFile.WriteIniInt("setting", "V3", V3 ? 1 : 0);
             OperateIniFile.WriteIniInt("setting", "CustomUA", CustomUA ? 1 : 0);
 
             var ua = OperateIniFile.ReadIniString("setting", "ua", KaiSton.V3Str);
-            if(CustomUA)
+            if (CustomUA)
             {
                 KaiSton.settingsStr = ua;
 
@@ -79,9 +80,9 @@ namespace KaiosMarketDownloader
                     KaiSton.jsonSetting = JObject.Parse(KaiSton.settingsStr);
                 }
             }
-            
 
-            if (button1.Text== "开始下崽")
+
+            if (button1.Text == "开始下崽")
             {
                 button1.Enabled = false;
                 thread = new Thread(DownloadThread);
@@ -100,11 +101,12 @@ namespace KaiosMarketDownloader
 
                         thread.Abort();
                     }
-                }catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
 
                 }
-                foreach(Thread t in threadlist)
+                foreach (Thread t in threadlist)
                 {
                     try
                     {
@@ -116,7 +118,7 @@ namespace KaiosMarketDownloader
                     catch (Exception ex)
                     {
 
-                    } 
+                    }
                 }
                 threadlist.Clear();
                 button1.Text = "开始下崽";
@@ -135,7 +137,7 @@ namespace KaiosMarketDownloader
                 txt_log.ScrollToCaret();
 
             }));
-            lock(locker)
+            lock (locker)
             {
                 File.AppendAllText("log.txt", msg);
             }
@@ -161,8 +163,8 @@ namespace KaiosMarketDownloader
                     {
                         try
                         {
-                            lock(locker)
-                            {  
+                            lock (locker)
+                            {
                                 threadlist.Remove(threadlist.First(p => p.Name == Thread.CurrentThread.Name));
                             }
                         }
@@ -179,8 +181,8 @@ namespace KaiosMarketDownloader
                     KaiosStoneItem item = null;
                     lock (locker)
                     {
-                       item = downlist.Dequeue();
-                    } 
+                        item = downlist.Dequeue();
+                    }
                     UpdateLabel();
                     int i = item.nowid;
                     string rename = item.rename;
@@ -190,7 +192,7 @@ namespace KaiosMarketDownloader
                     {
                         try
                         {
-                            Log("第"+Thread.CurrentThread.Name + "只母鸡，正在努力下第" + (i + 1) + "只崽,崽的名字叫：" + rename + "！");
+                            Log("第" + Thread.CurrentThread.Name + "只母鸡，正在努力下第" + (i + 1) + "只崽,崽的名字叫：" + rename + "！");
 
                             var downlink = item.package_path;
 
@@ -203,18 +205,19 @@ namespace KaiosMarketDownloader
                                     string data = "";
                                     data = Encoding.UTF8.GetString(res);
                                     var jsonobj = JObject.Parse(data);
-                                    if (jsonobj["code"].ToString()=="401")
-                                    { 
+                                    if (jsonobj["code"].ToString() == "401")
+                                    {
                                         KaiSton.getKey();
                                         continue;
-                                    } 
+                                    }
                                 }
                                 catch (Exception ex)
                                 {
 
                                 }
                             }
-                            lock (locker){
+                            lock (locker)
+                            {
                                 File.WriteAllBytes(savename, res);
                             }
 
@@ -223,13 +226,13 @@ namespace KaiosMarketDownloader
                         }
                         catch (Exception ex)
                         {
-                            Log("第" + Thread.CurrentThread.Name + "只母鸡，"+"第" + (i + 1) + "只崽 " + rename + " 不肯出窝并说\"" + ex.Message + "\"，重试第" + trycount + "次！");
+                            Log("第" + Thread.CurrentThread.Name + "只母鸡，" + "第" + (i + 1) + "只崽 " + rename + " 不肯出窝并说\"" + ex.Message + "\"，重试第" + trycount + "次！");
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-
+                    Thread.Sleep(500);
                 }
             }
         }
@@ -249,7 +252,7 @@ namespace KaiosMarketDownloader
         {
             try
             {
-                Log("开始下崽..."); 
+                Log("开始下崽...");
                 KaiSton.getKey();
                 Log("正在寻找母鸡...");
                 var ret = "";
@@ -265,19 +268,19 @@ namespace KaiosMarketDownloader
                 }
                 var retjson = JObject.Parse(ret);
                 var apps = retjson.ToString(Formatting.Indented);
-                if(V3)
-                { 
+                if (V3)
+                {
                     File.WriteAllText("appsdata_v3.json", apps);
                 }
                 else
-                { 
+                {
                     File.WriteAllText("appsdata_v2.json", apps);
                 }
                 var allapps = JsonConvert.DeserializeObject<List<KaiosStoneItem>>(retjson["apps"].ToString());
 
                 Log("母鸡已经找到，共有" + allapps.Count + "个崽，开始准备下崽...");
                 string downloadpath = Directory.GetCurrentDirectory() + "\\eggs\\";
-                if(V3)
+                if (V3)
                 {
                     downloadpath = Directory.GetCurrentDirectory() + "\\eggs_v3\\";
                 }
@@ -294,20 +297,20 @@ namespace KaiosMarketDownloader
                         Directory.CreateDirectory(downloadpath);
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
 
                 }
                 downlist.Clear();
-                count = allapps.Count; 
+                count = allapps.Count;
                 UpdateLabel();
-                for (int i = 0;i<allapps.Count;i++)
+                for (int i = 0; i < allapps.Count; i++)
                 {
                     now = i + 1;
 
                     KaiosStoneItem item = allapps[i];
                     item.nowid = i;
-                    string rename = (item.display?.Replace(" ", " ")?? item.name?.Replace(" ", " ") )+ " " + item.version + ".zip";
+                    string rename = (item.display?.Replace(" ", " ") ?? item.name?.Replace(" ", " ")) + " " + item.version + ".zip";
                     rename = rename.Replace("\\", " ");
 
                     rename = rename.Replace("/", " ");
@@ -335,10 +338,10 @@ namespace KaiosMarketDownloader
                         {
                             try
                             {
-                                if (new FileInfo(savename).Length<4096)
-                            { 
+                                if (new FileInfo(savename).Length < 4096)
+                                {
                                     string filecontent = File.ReadAllText(savename);
-                                    string data = ""; 
+
                                     var jsonobj = JObject.Parse(filecontent);
                                     if (jsonobj["code"].ToString() == "401")
                                     {
@@ -361,27 +364,36 @@ namespace KaiosMarketDownloader
                             {
                                 Log("当前是增量下崽，第" + (i + 1) + "只崽 " + rename + " 已经在窝里了！");
                                 continue;
-                            } 
+                            }
                         }
                     }
-                    if(string.IsNullOrWhiteSpace(item.package_path))
+                    if (string.IsNullOrWhiteSpace(item.package_path))
                     {
                         Log("第" + (i + 1) + "只崽 " + rename + " 可能是云崽，不用下崽了！");
                         continue;
                     }
                     downlist.Enqueue(item);
                 }
+                if(downlist.Count==0)
+                {
+                    Finished();
+                    return;
+                }
+                if (downlist.Count > threadCount)
+                {
+                    threadCount = downlist.Count;
+                }
 
-                for(int i=0;i<threadCount;i++)
+                for (int i = 0; i < threadCount; i++)
                 {
                     var threadnow = new Thread(DownThread);
                     threadnow.IsBackground = true;
                     threadnow.Start();
                     threadnow.Name = (i + 1).ToString();
                     threadlist.Add(threadnow);
-                } 
+                }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log("悲，崽崽难产了！！！" + ex.Message);
                 this.Invoke(new Action(() =>
@@ -393,7 +405,8 @@ namespace KaiosMarketDownloader
         private bool isrunning = false;
         private void button2_Click(object sender, EventArgs e)
         {
-            try {
+            try
+            {
                 ZengLiang = checkBox1.Checked;
                 threadCount = Convert.ToInt32(numericUpDown1.Value);
                 V3 = checkBox2.Checked;
@@ -433,7 +446,7 @@ namespace KaiosMarketDownloader
                     return;
                 }
 
-            if (button1.Text == "开始下崽")
+                if (button1.Text == "开始下崽")
                 {
                     isrunning = true;
                     Task.Run(() =>
@@ -456,37 +469,52 @@ namespace KaiosMarketDownloader
                             }
                             var retjson = JObject.Parse(ret);
                             var apps = retjson.ToString(Formatting.Indented);
-                            if (V3)
+                            if (CustomUA)
                             {
-                                File.WriteAllText("appsdata_v3.json", apps);
+                                File.WriteAllText("appsdata_" + KaiSton.model + ".json", apps);
                             }
                             else
                             {
-                                File.WriteAllText("appsdata_v2.json", apps);
+                                if (V3)
+                                {
+                                    File.WriteAllText("appsdata_v3.json", apps);
+                                }
+                                else
+                                {
+                                    File.WriteAllText("appsdata_v2.json", apps);
+                                }
                             }
                             var allapps = JsonConvert.DeserializeObject<List<KaiosStoneItem>>(retjson["apps"].ToString());
 
                             string downloadpath = Directory.GetCurrentDirectory() + "\\eggs\\";
                             string oldpath = Directory.GetCurrentDirectory() + "\\eggs_old\\";
-                            if (V3)
+                            if (CustomUA)
                             {
-                                downloadpath = Directory.GetCurrentDirectory() + "\\eggs_v3\\";
-                                oldpath = Directory.GetCurrentDirectory() + "\\eggs_v3_old\\";
+                                downloadpath = Directory.GetCurrentDirectory() + "\\eggs_" + KaiSton.model + "\\";
+                                oldpath = Directory.GetCurrentDirectory() + "\\eggs_" + KaiSton.model + "_old\\";
                             }
                             else
                             {
-                                downloadpath = Directory.GetCurrentDirectory() + "\\eggs_v2\\";
-                                oldpath = Directory.GetCurrentDirectory() + "\\eggs_v2_old\\";
+                                if (V3)
+                                {
+                                    downloadpath = Directory.GetCurrentDirectory() + "\\eggs_v3\\";
+                                    oldpath = Directory.GetCurrentDirectory() + "\\eggs_v3_old\\";
+                                }
+                                else
+                                {
+                                    downloadpath = Directory.GetCurrentDirectory() + "\\eggs_v2\\";
+                                    oldpath = Directory.GetCurrentDirectory() + "\\eggs_v2_old\\";
+                                }
                             }
-                            if(!Directory.Exists(oldpath))
+                            if (!Directory.Exists(oldpath))
                             {
                                 try
                                 {
-                                    Directory.CreateDirectory(oldpath); 
+                                    Directory.CreateDirectory(oldpath);
                                 }
-                                catch(Exception ex)
+                                catch (Exception ex)
                                 {
-                                } 
+                                }
                             }
                             List<string> saveNames = new List<string>();
                             for (int i = 0; i < allapps.Count; i++)
@@ -526,7 +554,7 @@ namespace KaiosMarketDownloader
                                 if (!saveNames.Contains(pth))
                                 {
                                     try
-                                    { 
+                                    {
                                         File.Move(path, oldpath + pth);
 
                                         Log(pth + "已移动！");
@@ -541,7 +569,8 @@ namespace KaiosMarketDownloader
                             }
 
                             Log("操作完成，移动了" + cnt + "个旧崽！");
-                        }catch(Exception ex)
+                        }
+                        catch (Exception ex)
                         {
 
                             Log("悲，报错了！！！" + ex.Message);
@@ -550,27 +579,27 @@ namespace KaiosMarketDownloader
                         {
                             isrunning = false;
                         }
-                    }); 
+                    });
                 }
                 else
-            {
-                MessageBox.Show("正在下崽，请等待结束后再执行整理操作！");
+                {
+                    MessageBox.Show("正在下崽，请等待结束后再执行整理操作！");
+                }
             }
-        }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Log("悲，报错了！！！" + ex.Message); 
+                Log("悲，报错了！！！" + ex.Message);
 
             }
-}
+        }
 
         private void button3_Click(object sender, EventArgs e)
         {
             MessageBox.Show("请在打开的文本编辑器中编辑setting，ua 的数据！");
             var ua = OperateIniFile.ReadIniString("setting", "ua", KaiSton.V3Str);
-            OperateIniFile.WriteIniString("setting","ua", ua);
+            OperateIniFile.WriteIniString("setting", "ua", ua);
             System.Diagnostics.Process.Start("Explorer", OperateIniFile.IniFileName);
-            
+
         }
     }
 }

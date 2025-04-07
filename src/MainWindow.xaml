@@ -687,7 +687,7 @@
                                 <ItemsPanelTemplate>
                                     <UniformGrid Columns="5" Rows="4" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
 
-                                    </UniformGrid>
+                                    </UniformGrid> 
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
@@ -838,13 +838,13 @@
 
         <Grid Grid.Row="1" Name="grid_loading" Visibility="Collapsed">
             <Grid.Background>
-                <SolidColorBrush Color="Black" Opacity="0.3"></SolidColorBrush>
+                <SolidColorBrush Color="Black" Opacity="0.1"></SolidColorBrush>
             </Grid.Background>
             <hc:LoadingCircle Name="hc_loading" Visibility="Collapsed" IsRunning="False"></hc:LoadingCircle>
 
             <hc:CircleProgressBar Name="hc_progress" Visibility="Collapsed" Value="0" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBlock Text="" Name="hc_text_process" Foreground="White" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0 150 0 0"></TextBlock>
-
+            <TextBlock Text="" Name="hc_text_process"  Foreground="#018beb" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0 150 0 0"></TextBlock>
+            <Button Focusable="False" hc:BorderElement.CornerRadius="10" Visibility="Collapsed" BorderBrush="LightGray" Name="btn_cancelDownload" Click="btn_cancelDownload_Click" Content="取消下载" Width="100" Height="45" Margin="0 250 0 0"></Button>
         </Grid>
     </Grid>
 
